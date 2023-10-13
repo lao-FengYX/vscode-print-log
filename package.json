@@ -1,0 +1,158 @@
+{
+  "name": "print-log",
+  "displayName": "print-log",
+  "description": "javascript,typescript快速打印",
+  "version": "0.0.6",
+  "icon": "./public/img/donotRush.png",
+  "author": "Lao Feng",
+  "publisher": "LaoFeng",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lao-FengYX/print-log"
+  },
+  "engines": {
+    "vscode": "^1.68.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "javascript",
+    "typescript",
+    "console"
+  ],
+  "activationEvents": [
+    "onLanguage:vue",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
+  ],
+  "main": "./src/index.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "print.log",
+        "title": "Print Log"
+      },
+      {
+        "command": "print.table",
+        "title": "Print Table"
+      },
+      {
+        "command": "print.dir",
+        "title": "Print Dir"
+      },
+      {
+        "command": "print.warn",
+        "title": "Print Warn"
+      },
+      {
+        "command": "print.error",
+        "title": "Print Error"
+      },
+      {
+        "command": "print.cleanConsole",
+        "title": "Print CleanConsole"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "print.log",
+        "key": "ctrl+alt+l",
+        "mac": "ctrl+alt+l",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "print.table",
+        "key": "ctrl+alt+t",
+        "mac": "ctrl+alt+t",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "print.dir",
+        "key": "ctrl+alt+d",
+        "mac": "ctrl+alt+d",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "print/tools",
+          "when": "resourceExtname =~ /\\.([c|m]?[t|j]s|[t|j]sx|vue|html)$/",
+          "group": "navigation"
+        }
+      ],
+      "print/tools": [
+        {
+          "command": "print.log",
+          "when": "editorTextFocus",
+          "group": "print-menu@1"
+        },
+        {
+          "command": "print.table",
+          "when": "editorTextFocus",
+          "group": "print-menu@2"
+        },
+        {
+          "command": "print.dir",
+          "when": "editorTextFocus",
+          "group": "print-menu@3"
+        },
+        {
+          "command": "print.warn",
+          "when": "editorTextFocus",
+          "group": "print-menu@4"
+        },
+        {
+          "command": "print.error",
+          "when": "editorTextFocus",
+          "group": "print-menu@5"
+        },
+        {
+          "command": "print.cleanConsole",
+          "when": "editorTextFocus",
+          "group": "print-menu@6"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "print/tools",
+        "label": "Print"
+      }
+    ],
+    "configuration": {
+      "title": "print-log",
+      "properties": {
+        "print-log.clean.format": {
+          "type": "boolean",
+          "default": true,
+          "description": "清空console之后 格式化当前文档"
+        },
+        "print-log.output.log": {
+          "type": "string",
+          "default": "",
+          "description": "在输出的日志前面加一些标识, 更容易找到你的日志"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "yarn run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.68.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "eslint": "^8.47.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.1.6",
+    "@vscode/test-electron": "^2.3.4"
+  },
+  "license": "MIT"
+}
