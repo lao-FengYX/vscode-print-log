@@ -2,7 +2,7 @@
   "name": "print-log",
   "displayName": "print-log",
   "description": "javascript,typescript快速打印",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "icon": "./public/img/donotRush.png",
   "author": "Lao Feng",
   "publisher": "LaoFeng",
