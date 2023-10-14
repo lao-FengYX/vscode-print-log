@@ -1,19 +1,31 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-10-13 11:11:20
+ * @LastEditTime: 2023-10-14 10:25:15
  * @LastEditors: WR
- * @Description:
- * @FilePath: \helloworld\src\editor.js
+ * @Description: 操作编辑器相关
+ * @FilePath: \print-log\src\editor.js
  */
 const vscode = require('vscode')
 
-const { moveTheCursor } = require('./public')
+const { moveTheCursor, getAllConsole, getConfig } = require('./public')
 
 // 获取用户的所有配置
-const config = vscode.workspace.getConfiguration('print-log')
+let config = getConfig()
 // 开始填充的字符串
-const startAddStr = config.get('output.log')
+let startAddStr = config.get('output.log')
+// 清空console是否格式化
+let format = config.get('clean.format')
+let singleQuote = config.get('output.Single Quote')
+
+// 监听配置项变化
+vscode.workspace.onDidChangeConfiguration(() => {
+  // 获取用户的所有配置
+  config = getConfig()
+  startAddStr = config.get('output.log')
+  format = config.get('clean.format')
+  singleQuote = config.get('output.Single Quote')
+})
 
 /**
  * @author: WR
@@ -42,7 +54,8 @@ const consoleHandle = (activeEditor, text = 'log') => {
 
     // 开始位置增加的字符串
     if (startAddStr !== '') {
-      currentLineText = `'${startAddStr}',` + currentLineText
+      const quote = singleQuote ? '\'' : '\"'
+      currentLineText = `${quote}${startAddStr}${quote}, ` + currentLineText
     }
 
     const replacedText = `console.${text}(${currentLineText})`.replace(/^(.*)$/, `${indent}$1`) // 在替换字符串中添加缩进
@@ -101,10 +114,11 @@ const selectHandle = (activeEditor, text = 'log') => {
 
     // 开始位置增加的字符串
     if (startAddStr !== '') {
-      strArr.unshift(`'${startAddStr}'`)
+      const quote = singleQuote ? '\'' : '\"'
+      strArr.unshift(`${quote}${startAddStr}${quote}`)
     }
 
-    const nextLineText = `${preIndent}console.${text}(${strArr.join(',')})\n` // 下一行要插入的文本
+    const nextLineText = `${preIndent}console.${text}(${strArr.join(', ')})\n` // 下一行要插入的文本
 
     activeEditor
       .edit(edit => edit.insert(new vscode.Position(maxLine, 0), nextLineText))
@@ -168,35 +182,6 @@ class AutoCompletionItemProvider {
 
 /**
  * @author: WR
- * @Date: 2023-10-12 08:53:59
- * @description: 获取所有console
- * @param {vscode.TextEditor} editor
- * @return {*}
- */
-const getAllConsole = editor => {
-  const document = editor.document
-  const documentText = document.getText()
-
-  let arr = []
-  // 匹配所有console以及里面可能会包含多个()的情况
-  let reg =
-    /((window|global|globalThis)\.)?console\.(log|debug|info|warn|error|assert|dir|dirxml|trace|group|groupEnd|time|timeEnd|profile|profileEnd|count)\(([\(|\)]*.*)\);?/g
-
-  let match
-  while ((match = reg.exec(documentText))) {
-    // 匹配的范围
-    let matchRange = new vscode.Range(
-      document.positionAt(match.index),
-      document.positionAt(match.index + match[0].length)
-    )
-    // 如果不是空
-    if (!matchRange.isEmpty) arr.push(matchRange)
-  }
-  return arr
-}
-
-/**
- * @author: WR
  * @Date: 2023-10-12 09:19:30
  * @description: 注册删除所有console的指令
  * @param {vscode.ExtensionContext} context
@@ -218,7 +203,7 @@ const registerRemoveAllConsole = context => {
       })
 
       vscode.workspace.applyEdit(workspaceEdit).then(() => {
-        if (config.get('clean.format')) {
+        if (format) {
           // 触发vscode的格式化
           vscode.commands.executeCommand('editor.action.formatDocument')
         }

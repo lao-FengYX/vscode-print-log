@@ -135,6 +135,11 @@
           "type": "string",
           "default": "",
           "description": "在输出的日志前面加一些标识, 更容易找到你的日志"
+        },
+        "print-log.output.Single Quote": {
+          "type": "boolean",
+          "default": true,
+          "description": "自定义的输出日志标识, 使用单引号"
         }
       }
     }

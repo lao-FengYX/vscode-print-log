@@ -3,7 +3,7 @@
  * @Date: 2023-09-24 13:19:00
  * @LastEditTime: 2023-10-12 09:19:16
  * @LastEditors: WR
- * @Description:
+ * @Description: 入口
  * @FilePath: \helloworld\src\index.js
  */
 const vscode = require('vscode')
@@ -18,7 +18,11 @@ const {
 let language = ['html', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'vue']
 
 /**
+ * @author: WR
+ * @Date: 2023-10-14 10:06:00
+ * @description: 激活插件入口
  * @param {vscode.ExtensionContext} context
+ * @return {*}
  */
 function activate(context) {
   const arr = ['log', 'table', 'dir', 'warn', 'error']
