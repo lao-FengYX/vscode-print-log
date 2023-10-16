@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-10-16 13:32:02
+ * @LastEditTime: 2023-10-16 16:02:00
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -102,8 +102,8 @@ const getCloseBracketLine = (document, line, bracket = '{') => {
 const getBracketNum = (text, bracket) => {
   let startNum = 0
   let endNum = 0
-  let startReg = bracket === '{' ? /{/g : /\(/g
-  let endReg = bracket === '{' ? /}/g : /\)/g
+  let startReg = bracket === '{' ? /{/g : bracket === '(' ? /\(/g : /\[/g
+  let endReg = bracket === '{' ? /}/g : bracket === '(' ? /\)/g : /\]/g
 
   while (startReg.exec(text)) {
     startNum++

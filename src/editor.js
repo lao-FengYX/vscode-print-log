@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-10-16 13:46:13
+ * @LastEditTime: 2023-10-16 16:01:42
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -89,10 +89,11 @@ const consoleHandle = (activeEditor, text = 'log') => {
  */
 const selectHandle = (activeEditor, text = 'log') => {
   const selections = activeEditor.selections
+  const document = activeEditor.document
   let strArr = [] // 获取所有选择的内容
   let lineArr = [] // 获取行号
   selections.forEach(selection => {
-    const words = activeEditor.document.getText(selection)
+    const words = document.getText(selection)
     lineArr.push(selection.active.line)
     if (words !== '') {
       strArr.push(words)
@@ -105,10 +106,10 @@ const selectHandle = (activeEditor, text = 'log') => {
   try {
     const maxLine = Math.max(...lineArr)
 
-    const currentLine = activeEditor.document.lineAt(maxLine)
+    const currentLine = document.lineAt(maxLine)
     const currentText = currentLine.text?.trimEnd() // 获取文本
 
-    const nextLine = activeEditor.document.lineAt(maxLine + 1)
+    const nextLine = document.lineAt(maxLine + 1)
     let nextLineRange = nextLine.range // 获取移动光标范围
 
     const funcReg = /\((.*)\)\s*(=>\s*)?{$/g // 如果是以函数结尾 匹配当前行缩进
@@ -120,11 +121,16 @@ const selectHandle = (activeEditor, text = 'log') => {
     }
 
     const objReg = /=\s*{$/g // 如果是对象结尾
+    const arrReg = /=\s*\[$/g // 数组结尾
     let insertLine // 插入行
     if (objReg.test(currentText)) {
-      const lineNum = getCloseBracketLine(activeEditor.document, maxLine) // 获取结束括号的行号
+      const lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
       insertLine = lineNum ? lineNum + 1 : maxLine + 1
-      nextLineRange = activeEditor.document.lineAt(insertLine).range // 更改移动光标范围
+      nextLineRange = document.lineAt(insertLine).range // 更改移动光标范围
+    } else if (arrReg.test(currentText)) {
+      const lineNum = getCloseBracketLine(document, maxLine, '[') // 获取结束括号的行号
+      insertLine = lineNum ? lineNum + 1 : maxLine + 1
+      nextLineRange = document.lineAt(insertLine).range // 更改移动光标范围
     } else {
       insertLine = maxLine + 1
     }
