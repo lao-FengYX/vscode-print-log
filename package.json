@@ -139,7 +139,7 @@
         "print-log.output.Single Quote": {
           "type": "boolean",
           "default": true,
-          "description": "自定义的输出日志标识, 使用单引号"
+          "description": "使用单引号包裹自定义的输出日志标识"
         }
       }
     }

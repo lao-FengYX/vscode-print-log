@@ -25,9 +25,9 @@ This is a plugin that helps you quickly print the current line content.
 
 ### Before
 
-Now you can input the corresponding instruction at the beginning/end of the current line to trigger completion
+Now you can input the corresponding instructions at the beginning/end of the current line to trigger completion
 
-现在可以在当前行的开始/结尾处输入响应的指令进行触发补全
+现在可以在当前行的开始/结尾处输入相应的指令进行触发补全
 
 #### example
 
