@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-10-14 09:59:17
+ * @LastEditTime: 2023-10-16 13:32:02
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -67,8 +67,60 @@ const getConfig = () => {
   return vscode.workspace.getConfiguration(projectName)
 }
 
+/**
+ * @author: WR
+ * @Date: 2023-10-16 11:55:54
+ * @description: 获取最大行
+ * @param {vscode.TextDocument} document
+ * @param {Number} line
+ * @param {?String} bracket
+ * @return {Number|undefined}
+ */
+const getCloseBracketLine = (document, line, bracket = '{') => {
+  let startBracket = 0
+  let endBracket = 0
+  while (line <= document.lineCount) {
+    const { startNum, endNum } = getBracketNum(document.lineAt(line).text, bracket)
+    startBracket += startNum
+    endBracket += endNum
+    if (startBracket - endBracket === 0) {
+      return line
+    }
+    line++
+  }
+  return
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-10-16 12:55:11
+ * @description: 获取括号数量
+ * @param {String} text
+ * @param {String} bracket
+ * @return {{startNum:Number,endNum:Number}}
+ */
+const getBracketNum = (text, bracket) => {
+  let startNum = 0
+  let endNum = 0
+  let startReg = bracket === '{' ? /{/g : /\(/g
+  let endReg = bracket === '{' ? /}/g : /\)/g
+
+  while (startReg.exec(text)) {
+    startNum++
+  }
+  while (endReg.exec(text)) {
+    endNum++
+  }
+  return {
+    startNum,
+    endNum
+  }
+}
+
 module.exports = {
   moveTheCursor,
   getAllConsole,
-  getConfig
+  getConfig,
+  getCloseBracketLine,
+  getBracketNum
 }
