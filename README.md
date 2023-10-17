@@ -28,9 +28,9 @@
 
 ### 示例
 
-<img src="https://github.com/lao-FengYX/print-log/blob/main/public/img/example1.gif" alt="log" title="example1" width="60%">
+<img src="public/img/example1.gif" alt="log" title="example1" width="70%" >
 
-<img src="https://github.com/lao-FengYX/print-log/blob/main/public/img/example2.gif" alt="select log" title="example2" width="60%">
+<img src="public/img/example2.gif" alt="select log" title="example2" width="70%">
 
 **快捷键可以自行修改**
 
