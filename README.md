@@ -7,6 +7,7 @@
 并附带一键清空所有`console`的功能(在右键菜单的`Print`中)
 
 ### 触发指令
+
 触发指令时, 如果有已选择的内容则会打印已选择的内容, 而不是当前行
 
 | 指令       |                      结果 |
@@ -24,6 +25,12 @@
 | ctrl+alt+d | console.dir(lineContent) |
 |            | console.warn(lineContent) |
 |            | console.error(lineContent) |
+
+### 示例
+
+![log](./public/img/example1.gif)
+
+![select log](./public/img/example2.gif)
 
 **快捷键可以自行修改**
 
