@@ -2,7 +2,7 @@
   "name": "print-log",
   "displayName": "print-log",
   "description": "javascript,typescript快速打印",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "icon": "./public/img/donotRush.png",
   "author": "Lao Feng",
   "publisher": "LaoFeng",
@@ -139,7 +139,11 @@
         "print-log.output.Select quotation marks": {
           "type": "string",
           "default": "Single Quote",
-          "enum": ["Single Quote", "Double Quotes", "Backticks"],
+          "enum": [
+            "Single Quote",
+            "Double Quotes",
+            "Backticks"
+          ],
           "description": "选择引号",
           "enumDescriptions": [
             "使用单引号包裹自定义的内容",
