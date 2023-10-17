@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-10-16 16:01:42
+ * @LastEditTime: 2023-10-17 16:51:33
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -12,11 +12,16 @@ const { moveTheCursor, getAllConsole, getConfig, getCloseBracketLine } = require
 
 // 获取用户的所有配置
 let config = getConfig()
-// 开始填充的字符串
-let startAddStr = config.get('output.log')
 // 清空console是否格式化
 let format = config.get('clean.format')
-let singleQuote = config.get('output.Single Quote')
+// 开始填充的字符串
+let startAddStr = config.get('output.log')
+// 引号方式
+let quotationMarks = config.get('output.Select quotation marks')
+// 引号数组  0 单引号  1 双引号  2 反引号
+const marks = ['Single Quote', 'Double Quotes', 'Backticks']
+// 是否移动光标到适当位置
+let isMove = config.get('output.move the cursor')
 
 // 监听配置项变化
 vscode.workspace.onDidChangeConfiguration(() => {
@@ -24,7 +29,8 @@ vscode.workspace.onDidChangeConfiguration(() => {
   config = getConfig()
   startAddStr = config.get('output.log')
   format = config.get('clean.format')
-  singleQuote = config.get('output.Single Quote')
+  quotationMarks = config.get('output.Select quotation marks')
+  isMove = config.get('output.move the cursor')
 })
 
 /**
@@ -32,48 +38,59 @@ vscode.workspace.onDidChangeConfiguration(() => {
  * @Date: 2023-09-24 14:21:12
  * @description: 打印当前行内容
  * @param {vscode.TextEditor} activeEditor
- * @param {?String} text
+ * @param {?String} text 指令
+ * @param {Number[]} lineArr 光标所在行
  * @return {*}
  */
-const consoleHandle = (activeEditor, text = 'log') => {
+const consoleHandle = (activeEditor, text = 'log', lineArr) => {
   try {
-    const selection = activeEditor.selection
-    const currentLine = activeEditor.document.lineAt(selection.active.line) // 当前行
-    const currentLineRange = currentLine.range // 当前行范围
-    let currentLineText = currentLine.text.trim() // 去掉空格的当前行的文本
+    const selections = activeEditor.selections
+    const document = activeEditor.document
 
-    const indent = currentLine.text.match(/^\s*/)?.[0] || '' // 获取当前行的缩进
+    let waitingProcessing = [] // 待处理数组
 
-    // 判断是否是以当前打印的字符串开始或结束 如果是就清空
-    if (currentLineText.startsWith(text)) {
-      currentLineText = currentLineText.replace(text, '')
-    }
-    if (currentLineText.endsWith(text)) {
-      currentLineText = currentLineText.slice(0, currentLineText.length - text.length)
-    }
+    lineArr.forEach(line => {
+      const currentLine = document.lineAt(line) // 当前行
+      const currentLineRange = currentLine.range // 当前行范围
+      let currentLineText = currentLine.text.trim() // 去掉空格的当前行的文本
 
-    // 开始位置增加的字符串
-    if (startAddStr !== '') {
-      const quote = singleQuote ? "'" : '"'
-      currentLineText = `${quote}${startAddStr}${quote}, ` + currentLineText
-    }
+      const indent = currentLine.text.match(/^\s*/)?.[0] || '' // 获取当前行的缩进
 
-    const replacedText = `console.${text}(${currentLineText})`.replace(/^(.*)$/, `${indent}$1`) // 在替换字符串中添加缩进
+      // 判断是否是以当前打印的字符串开始或结束 如果是就清空
+      if (currentLineText.startsWith(text)) {
+        currentLineText = currentLineText.replace(text, '')
+      }
+      if (currentLineText.endsWith(text)) {
+        currentLineText = currentLineText.slice(0, currentLineText.length - text.length)
+      }
 
+      // 开始位置增加的字符串
+      if (startAddStr !== '') {
+        const index = marks.indexOf(quotationMarks)
+        const quote = index === 0 ? "'" : index === 1 ? '"' : '`'
+        currentLineText = `${quote}${startAddStr}${quote}, ` + currentLineText
+      }
+
+      const replacedText = `console.${text}(${currentLineText})`.replace(/^(.*)$/, `${indent}$1`) // 在替换字符串中添加缩进
+
+      waitingProcessing.push({ currentLineRange, replacedText })
+    })
+
+    // 对光标位置所在行进行替换
     activeEditor
-      .edit(edit => edit.replace(currentLineRange, replacedText))
+      .edit(edit => {
+        for (const { currentLineRange, replacedText } of waitingProcessing) {
+          edit.replace(currentLineRange, replacedText)
+        }
+      })
       .then(success => {
-        if (success) {
-          // 移动光标
+        if (success && isMove) {
           moveTheCursor({
             activeEditor,
-            currentLineRange,
-            text: replacedText
+            selections
           })
         }
       })
-
-    // vscode.window.showInformationMessage(`当前行内容为: ${currentLine.text}`)
   } catch (error) {
     vscode.window.showErrorMessage(error)
   }
@@ -84,26 +101,17 @@ const consoleHandle = (activeEditor, text = 'log') => {
  * @Date: 2023-10-11 18:11:17
  * @description: 打印插入选择的内容
  * @param {vscode.TextEditor} activeEditor
- * @param {?String} text
+ * @param {?String} text 指令
+ * @param {String[]} strArr 选择的内容
+ * @param {Number[]} lineArr 光标所在行
  * @return {*}
  */
-const selectHandle = (activeEditor, text = 'log') => {
-  const selections = activeEditor.selections
-  const document = activeEditor.document
-  let strArr = [] // 获取所有选择的内容
-  let lineArr = [] // 获取行号
-  selections.forEach(selection => {
-    const words = document.getText(selection)
-    lineArr.push(selection.active.line)
-    if (words !== '') {
-      strArr.push(words)
-    }
-  })
-
+const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
   // 没有选择的内容直接 return
   if (!strArr.length) return
 
   try {
+    const document = activeEditor.document
     const maxLine = Math.max(...lineArr)
 
     const currentLine = document.lineAt(maxLine)
@@ -112,7 +120,7 @@ const selectHandle = (activeEditor, text = 'log') => {
     const nextLine = document.lineAt(maxLine + 1)
     let nextLineRange = nextLine.range // 获取移动光标范围
 
-    const funcReg = /\((.*)\)\s*(=>\s*)?{$/g // 如果是以函数结尾 匹配当前行缩进
+    const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
     let preIndent // 缩进
     if (funcReg.test(currentText)) {
       preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取下一行缩进
@@ -137,7 +145,8 @@ const selectHandle = (activeEditor, text = 'log') => {
 
     // 开始位置增加的字符串
     if (startAddStr !== '') {
-      const quote = singleQuote ? "'" : '"'
+      const index = marks.indexOf(quotationMarks)
+      const quote = index === 0 ? "'" : index === 1 ? '"' : '`'
       strArr.unshift(`${quote}${startAddStr}${quote}`)
     }
 
@@ -146,7 +155,7 @@ const selectHandle = (activeEditor, text = 'log') => {
     activeEditor
       .edit(edit => edit.insert(new vscode.Position(insertLine, 0), insertLineText))
       .then(success => {
-        if (success) {
+        if (success && isMove) {
           // 移动光标
           moveTheCursor({
             activeEditor,

@@ -11,7 +11,7 @@
     "url": "https://github.com/lao-FengYX/print-log"
   },
   "engines": {
-    "vscode": "^1.68.0"
+    "vscode": "^1.75.0"
   },
   "categories": [
     "Other"
@@ -136,10 +136,21 @@
           "default": "",
           "description": "在输出的日志前面加一些标识, 更容易找到你的日志"
         },
-        "print-log.output.Single Quote": {
+        "print-log.output.Select quotation marks": {
+          "type": "string",
+          "default": "Single Quote",
+          "enum": ["Single Quote", "Double Quotes", "Backticks"],
+          "description": "选择引号",
+          "enumDescriptions": [
+            "使用单引号包裹自定义的内容",
+            "使用双引号包裹自定义的内容",
+            "使用反引号包裹自定义的内容"
+          ]
+        },
+        "print-log.output.move the cursor": {
           "type": "boolean",
-          "default": true,
-          "description": "使用单引号包裹自定义的输出日志标识"
+          "default": false,
+          "description": "触发指令后移动光标到适当位置"
         }
       }
     }
@@ -150,7 +161,7 @@
     "test": "node ./test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.68.0",
+    "@types/vscode": "^1.75.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
     "eslint": "^8.47.0",

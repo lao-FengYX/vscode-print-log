@@ -1,10 +1,10 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 13:19:00
- * @LastEditTime: 2023-10-12 09:19:16
+ * @LastEditTime: 2023-10-17 14:38:56
  * @LastEditors: WR
  * @Description: 入口
- * @FilePath: \helloworld\src\index.js
+ * @FilePath: \print-log\src\index.js
  */
 const vscode = require('vscode')
 
@@ -35,15 +35,8 @@ function activate(context) {
         return
       }
 
-      const selection = activeEditor.selection
-      const words = activeEditor.document.getText(selection)
-      // 有选中的文本
-      if (words !== '') {
-        selectHandle(activeEditor, command)
-      } else {
-        // 没有选中的文本
-        consoleHandle(activeEditor, command)
-      }
+      // 打印入口
+      handlePrint(activeEditor, command)
     })
 
     context.subscriptions.push(disposable)
@@ -58,6 +51,35 @@ function activate(context) {
 
   // 注册清空所有console的指令
   registerRemoveAllConsole(context)
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-10-17 13:59:01
+ * @description: 打印入口
+ * @param {vscode.TextDocument} activeEditor
+ * @param {String} command
+ * @return {*}
+ */
+function handlePrint(activeEditor, command) {
+  const selections = activeEditor.selections
+  const document = activeEditor.document
+  let strArr = [] // 获取所有选择的内容
+  let lineArr = [] // 获取行号
+  selections.forEach(selection => {
+    const words = document.getText(selection)
+    lineArr.push(selection.active.line)
+    if (words !== '') {
+      strArr.push(words)
+    }
+  })
+  // 有选中的文本
+  if (strArr.length) {
+    selectHandle(activeEditor, command, strArr, lineArr)
+  } else {
+    // 没有选中的文本
+    consoleHandle(activeEditor, command, lineArr)
+  }
 }
 
 // This method is called when your extension is deactivated

@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-10-16 16:02:00
+ * @LastEditTime: 2023-10-17 17:31:26
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -19,13 +19,29 @@ const projectName = 'print-log'
  * @param {vscode.Range} obj.currentLineRange
  * @param {String} obj.text
  * @param {Number} obj.offset 光标偏移距离
+ * @param {vscode.Selection[]} obj.selections 光标数组
  * @return {*}
  */
-const moveTheCursor = ({ activeEditor, currentLineRange, text, offset = 1 }) => {
-  const newPosition = currentLineRange.start.translate(0, text.length - offset) // 新的光标位置
-  const newSelection = new vscode.Selection(newPosition, newPosition) // 创建新的选区
-  activeEditor.selection = newSelection // 设置新的选区
-  // activeEditor.revealRange(newSelection, vscode.TextEditorRevealType.Default) // 滚动编辑器以显示新的选区
+const moveTheCursor = ({ activeEditor, currentLineRange, text, offset = 1, selections }) => {
+  if (!selections) {
+    const newPosition = currentLineRange.start.translate(0, text.length - offset) // 新的光标位置
+    const newSelection = new vscode.Selection(newPosition, newPosition) // 创建新的选区
+    activeEditor.selection = newSelection // 设置新的选区
+    // activeEditor.revealRange(newSelection, vscode.TextEditorRevealType.Default) // 滚动编辑器以显示新的选区
+  } else {
+    const document = activeEditor.document
+    let positions = [] // 更新位置
+    selections.forEach(selection => {
+      const current = document.lineAt(selection.active)
+      const range = current.range
+      const currentText = current.text
+
+      // 光标移动到适当位置
+      const newPosition = range.start.translate(0, currentText.length - offset)
+      positions.push(new vscode.Selection(newPosition, newPosition))
+    })
+    activeEditor.selections = positions
+  }
 }
 
 /**
