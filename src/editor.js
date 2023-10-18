@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-10-17 16:51:33
+ * @LastEditTime: 2023-10-18 09:21:56
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -112,12 +112,13 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
 
   try {
     const document = activeEditor.document
+    const max = document.lineCount
     const maxLine = Math.max(...lineArr)
 
     const currentLine = document.lineAt(maxLine)
     const currentText = currentLine.text?.trimEnd() // 获取文本
 
-    const nextLine = document.lineAt(maxLine + 1)
+    const nextLine = document.lineAt(maxLine + 1 >= max ? max - 1 : maxLine + 1)
     let nextLineRange = nextLine.range // 获取移动光标范围
 
     const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进

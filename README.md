@@ -30,6 +30,8 @@
 
 <img src="public/img/example1.gif" alt="log" title="example1" width="70%" >
 
+<br>
+
 <img src="public/img/example2.gif" alt="select log" title="example2" width="70%">
 
 **快捷键可以自行修改**
