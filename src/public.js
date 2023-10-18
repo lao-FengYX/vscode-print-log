@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-10-17 17:31:26
+ * @LastEditTime: 2023-10-18 13:49:51
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -11,15 +11,23 @@ const vscode = require('vscode')
 const projectName = 'print-log'
 
 /**
+ * @typedef {Object} MoveType
+ * @property {vscode.activeEditor} activeEditor
+ * @property {vscode.Range} currentLineRange
+ * @property {String} text 文本
+ * @property {?Number} offset 光标偏移距离
+ */
+/**
+ * @typedef {Object} MovesType
+ * @property {vscode.activeEditor} activeEditor
+ * @property {vscode.Selection[]} selections
+ * @property {?Number} offset 光标偏移距离
+ */
+/**
  * @author: WR
  * @Date: 2023-10-11 18:25:10
  * @description: 移动光标
- * @param {Object} obj
- * @param {vscode.activeEditor} obj.activeEditor
- * @param {vscode.Range} obj.currentLineRange
- * @param {String} obj.text
- * @param {Number} obj.offset 光标偏移距离
- * @param {vscode.Selection[]} obj.selections 光标数组
+ * @param {MoveType|MovesType} obj
  * @return {*}
  */
 const moveTheCursor = ({ activeEditor, currentLineRange, text, offset = 1, selections }) => {
@@ -58,7 +66,7 @@ const getAllConsole = editor => {
   let arr = []
   // 匹配所有console
   let reg =
-    /((window|global|globalThis)\.)?console\.(log|debug|info|warn|error|assert|dir|dirxml|trace|group|groupEnd|time|timeEnd|profile|profileEnd|count)\((.*)\);?/g
+    /((window|global|globalThis)\.)?console\.(log|debug|info|warn|error|assert|clear|dir|dirxml|trace|table|group|groupCollapsed|groupEnd|time|timeEnd|timeLog|timeStamp|profile|profileEnd|count|countReset)\((.*)\);?/g
 
   let match
   while ((match = reg.exec(documentText))) {
