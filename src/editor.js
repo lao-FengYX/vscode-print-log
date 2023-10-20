@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-10-18 09:21:56
+ * @LastEditTime: 2023-10-20 10:43:15
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -99,7 +99,7 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
 /**
  * @author: WR
  * @Date: 2023-10-11 18:11:17
- * @description: 打印插入选择的内容
+ * @description: 打印选择的内容
  * @param {vscode.TextEditor} activeEditor
  * @param {?String} text 指令
  * @param {String[]} strArr 选择的内容
@@ -121,13 +121,7 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     const nextLine = document.lineAt(maxLine + 1 >= max ? max - 1 : maxLine + 1)
     let nextLineRange = nextLine.range // 获取移动光标范围
 
-    const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
-    let preIndent // 缩进
-    if (funcReg.test(currentText)) {
-      preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取下一行缩进
-    } else {
-      preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
-    }
+    let preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
 
     const objReg = /=\s*{$/g // 如果是对象结尾
     const arrReg = /=\s*\[$/g // 数组结尾
@@ -142,6 +136,22 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
       nextLineRange = document.lineAt(insertLine).range // 更改移动光标范围
     } else {
       insertLine = maxLine + 1
+    }
+
+    const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
+    if (funcReg.test(currentText)) {
+      preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取下一行缩进
+
+      let leftStr = currentText.trim()?.split('(')[0] || '' // 获取参数左侧的内容
+      leftStr = leftStr.replace(/(\.|=)/g, ' ')
+      let leftStrArr = leftStr.split(' ').filter(Boolean) // 过滤出真值
+      let include = strArr.some(str => leftStrArr.includes(str)) // 左侧内容是否为已选择的内容
+      if (include) {
+        const lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
+        insertLine = lineNum ? lineNum + 1 : maxLine + 1
+        nextLineRange = document.lineAt(insertLine).range // 更改移动光标范围
+        preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
+      }
     }
 
     // 开始位置增加的字符串
@@ -191,7 +201,6 @@ class AutoCompletionItemProvider {
     this.upperCommand = this.command.slice(0, 1).toUpperCase() + this.command.slice(1)
 
     // this.text = document.lineAt(position.line).text;
-    // console.log(document, position,this.text)
 
     const snippetCompletion = new vscode.CompletionItem(
       this.command,
