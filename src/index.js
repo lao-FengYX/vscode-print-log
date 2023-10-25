@@ -57,7 +57,7 @@ function activate(context) {
  * @author: WR
  * @Date: 2023-10-17 13:59:01
  * @description: 打印入口
- * @param {vscode.TextDocument} activeEditor
+ * @param {vscode.TextEditor} activeEditor
  * @param {String} command
  * @return {*}
  */

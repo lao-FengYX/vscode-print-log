@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-10-20 10:43:15
+ * @LastEditTime: 2023-10-25 13:26:04
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -22,6 +22,8 @@ let quotationMarks = config.get('output.Select quotation marks')
 const marks = ['Single Quote', 'Double Quotes', 'Backticks']
 // 是否移动光标到适当位置
 let isMove = config.get('output.move the cursor')
+// 是否需要分号
+let semicolon = config.get('output.semicolon is required')
 
 // 监听配置项变化
 vscode.workspace.onDidChangeConfiguration(() => {
@@ -31,6 +33,7 @@ vscode.workspace.onDidChangeConfiguration(() => {
   format = config.get('clean.format')
   quotationMarks = config.get('output.Select quotation marks')
   isMove = config.get('output.move the cursor')
+  semicolon = config.get('output.semicolon is required')
 })
 
 /**
@@ -71,7 +74,9 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
         currentLineText = `${quote}${startAddStr}${quote}, ` + currentLineText
       }
 
-      const replacedText = `console.${text}(${currentLineText})`.replace(/^(.*)$/, `${indent}$1`) // 在替换字符串中添加缩进
+      let replacedText = `console.${text}(${currentLineText})`.replace(/^(.*)$/, `${indent}$1`) // 在替换字符串中添加缩进
+
+      semicolon ? (replacedText += ';') : null // 需要分号
 
       waitingProcessing.push({ currentLineRange, replacedText })
     })
@@ -118,14 +123,14 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     const currentLine = document.lineAt(maxLine)
     const currentText = currentLine.text?.trimEnd() // 获取文本
 
-    const nextLine = document.lineAt(maxLine + 1 >= max ? max - 1 : maxLine + 1)
+    let nextLine = document.lineAt(maxLine + 1 >= max ? max - 1 : maxLine + 1)
     let nextLineRange = nextLine.range // 获取移动光标范围
 
+    let insertLine // 插入行
     let preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
 
     const objReg = /=\s*{$/g // 如果是对象结尾
     const arrReg = /=\s*\[$/g // 数组结尾
-    let insertLine // 插入行
     if (objReg.test(currentText)) {
       const lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
       insertLine = lineNum ? lineNum + 1 : maxLine + 1
@@ -139,19 +144,30 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     }
 
     const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
+    const funcArrReg = /,\s*\[$/g // 如果是以数组换行的方式结尾的
+    const funcObjReg = /,\s*{/g // 如果是以对象换行的方式结尾的
+
+    let arrTestResult = funcArrReg.test(currentText)
+    let objTestResult = funcObjReg.test(currentText)
+
     if (funcReg.test(currentText)) {
       preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取下一行缩进
 
-      let leftStr = currentText.trim()?.split('(')[0] || '' // 获取参数左侧的内容
-      leftStr = leftStr.replace(/(\.|=)/g, ' ')
-      let leftStrArr = leftStr.split(' ').filter(Boolean) // 过滤出真值
-      let include = strArr.some(str => leftStrArr.includes(str)) // 左侧内容是否为已选择的内容
+      let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
+
       if (include) {
         const lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
         insertLine = lineNum ? lineNum + 1 : maxLine + 1
         nextLineRange = document.lineAt(insertLine).range // 更改移动光标范围
         preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
       }
+    } else if (arrTestResult || objTestResult) {
+      const lineNum = getCloseBracketLine(document, maxLine, '(') // 获取结束括号的行号
+
+      insertLine = lineNum ? lineNum + 1 : maxLine + 1
+      nextLine = document.lineAt(insertLine)
+      nextLineRange = nextLine.range // 更改移动光标范围
+      preIndent = document.lineAt(insertLine - 1).text.match(/^\s*/)?.[0] || '' // 获取当前行缩进
     }
 
     // 开始位置增加的字符串
@@ -161,7 +177,11 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
       strArr.unshift(`${quote}${startAddStr}${quote}`)
     }
 
-    const insertLineText = `${preIndent}console.${text}(${strArr.join(', ')})\n` // 要插入的文本
+    let insertLineText = `${preIndent}console.${text}(${strArr.join(', ')})` // 要插入的文本
+
+    semicolon ? (insertLineText += ';') : null // 需要分号
+
+    insertLineText += '\n' // 换行
 
     activeEditor
       .edit(edit => edit.insert(new vscode.Position(insertLine, 0), insertLineText))
@@ -180,6 +200,21 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
   } catch (error) {
     vscode.window.showErrorMessage(error)
   }
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-10-24 09:14:47
+ * @description: 选择的内容是否包含左侧内容
+ * @param {String} currentText
+ * @param {String} strArr
+ * @return {Boolean}
+ */
+const confirmInclude = (currentText, strArr) => {
+  let leftStr = currentText.trim()?.split('(')[0] || '' // 获取参数左侧的内容
+  leftStr = leftStr.replace(/(\.|=)/g, ' ')
+  let leftStrArr = leftStr.split(' ').filter(Boolean) // 过滤出真值
+  return strArr.some(str => leftStrArr.includes(str)) // 左侧内容是否为已选择的内容
 }
 
 /**
