@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-10-25 13:26:04
+ * @LastEditTime: 2023-10-30 15:39:24
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -92,7 +92,8 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
         if (success && isMove) {
           moveTheCursor({
             activeEditor,
-            selections
+            selections,
+            offset: semicolon ? 2 : 1
           })
         }
       })
@@ -131,12 +132,12 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
 
     const objReg = /=\s*{$/g // 如果是对象结尾
     const arrReg = /=\s*\[$/g // 数组结尾
-    if (objReg.test(currentText)) {
-      const lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
-      insertLine = lineNum ? lineNum + 1 : maxLine + 1
-      nextLineRange = document.lineAt(insertLine).range // 更改移动光标范围
-    } else if (arrReg.test(currentText)) {
-      const lineNum = getCloseBracketLine(document, maxLine, '[') // 获取结束括号的行号
+
+    let objResult = objReg.test(currentText)
+    let arrResult = arrReg.test(currentText)
+
+    if (objResult || arrResult) {
+      const lineNum = getCloseBracketLine(document, maxLine, objResult ? '{' : '[') // 获取结束括号的行号
       insertLine = lineNum ? lineNum + 1 : maxLine + 1
       nextLineRange = document.lineAt(insertLine).range // 更改移动光标范围
     } else {
@@ -144,11 +145,9 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     }
 
     const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
-    const funcArrReg = /,\s*\[$/g // 如果是以数组换行的方式结尾的
-    const funcObjReg = /,\s*{/g // 如果是以对象换行的方式结尾的
+    const bracketReg = /\(.*$/g // 如果是括号结尾的
 
-    let arrTestResult = funcArrReg.test(currentText)
-    let objTestResult = funcObjReg.test(currentText)
+    let braketResult = bracketReg.test(currentText)
 
     if (funcReg.test(currentText)) {
       preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取下一行缩进
@@ -156,18 +155,26 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
       let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
 
       if (include) {
-        const lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
+        let lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
+        lineNum = getLeftIncludeLineNum(document, lineNum) // 判断Promise返回
+
         insertLine = lineNum ? lineNum + 1 : maxLine + 1
         nextLineRange = document.lineAt(insertLine).range // 更改移动光标范围
         preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
       }
-    } else if (arrTestResult || objTestResult) {
-      const lineNum = getCloseBracketLine(document, maxLine, '(') // 获取结束括号的行号
+    } else if (braketResult) {
+      let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
+      let lineNum = getCloseBracketLine(document, maxLine, '(') // 获取结束括号的行号
+      if (include) {
+        lineNum = getLeftIncludeLineNum(document, lineNum) // 判断Promise返回
+      } else {
+        lineNum = getNotContainLineNum(document, lineNum)
+      }
 
       insertLine = lineNum ? lineNum + 1 : maxLine + 1
       nextLine = document.lineAt(insertLine)
       nextLineRange = nextLine.range // 更改移动光标范围
-      preIndent = document.lineAt(insertLine - 1).text.match(/^\s*/)?.[0] || '' // 获取当前行缩进
+      preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取当前行缩进
     }
 
     // 开始位置增加的字符串
@@ -192,13 +199,66 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
             activeEditor,
             currentLineRange: nextLineRange,
             text: insertLineText,
-            offset: 2
+            offset: semicolon ? 3 : 2
           })
           strArr = lineArr = []
         }
       })
   } catch (error) {
     vscode.window.showErrorMessage(error)
+  }
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-10-30 15:22:11
+ * @description: 找到函数参数的打印位置
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ * @return {Number}
+ */
+const getNotContainLineNum = (document, num) => {
+  const temp = num
+  const thenReg = /\.(then|catch|finally)/
+  const fnEndReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/
+
+  let notFirstLine = false // 如果当前不是第一行
+  
+  while (num <= document.lineCount) {
+    let text = document.lineAt(num).text.trim()
+    if (text === '') {
+      return num - 1
+    }
+    if (!thenReg.test(text) && notFirstLine) {
+      return num - 1
+    }
+    if (thenReg.test(text) && fnEndReg.test(text)) {
+      return num
+    }
+    num++
+    notFirstLine = true
+  }
+
+  return temp
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-10-30 10:33:06
+ * @description: 找到接受返回值的位置
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ * @return {Number}
+ */
+const getLeftIncludeLineNum = (document, num) => {
+  let text = document.lineAt(num + 1).text.trim()
+  const thenReg = /\.(then|catch|finally)/
+
+  if (!thenReg.test(text) || text === '') {
+    return num
+  } else {
+    let lineNum = getCloseBracketLine(document, num + 1, '(') // 获取结束括号的行号
+    return getLeftIncludeLineNum(document, lineNum)
   }
 }
 

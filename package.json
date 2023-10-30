@@ -19,7 +19,9 @@
   "keywords": [
     "javascript",
     "typescript",
-    "console"
+    "console",
+    "log",
+    "快速打印"
   ],
   "activationEvents": [
     "onLanguage:vue",
