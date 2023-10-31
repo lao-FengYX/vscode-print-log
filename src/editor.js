@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-10-30 15:39:24
+ * @LastEditTime: 2023-10-31 17:33:16
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -174,7 +174,7 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
       insertLine = lineNum ? lineNum + 1 : maxLine + 1
       nextLine = document.lineAt(insertLine)
       nextLineRange = nextLine.range // 更改移动光标范围
-      preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取当前行缩进
+      preIndent = document.lineAt(insertLine - 1).text.match(/^\s*/)?.[0] || '' // 获取当前行缩进
     }
 
     // 开始位置增加的字符串
@@ -252,7 +252,7 @@ const getNotContainLineNum = (document, num) => {
  */
 const getLeftIncludeLineNum = (document, num) => {
   let text = document.lineAt(num + 1).text.trim()
-  const thenReg = /\.(then|catch|finally)/
+  const thenReg = /^\.(then|catch|finally)/
 
   if (!thenReg.test(text) || text === '') {
     return num
@@ -272,7 +272,7 @@ const getLeftIncludeLineNum = (document, num) => {
  */
 const confirmInclude = (currentText, strArr) => {
   let leftStr = currentText.trim()?.split('(')[0] || '' // 获取参数左侧的内容
-  leftStr = leftStr.replace(/(\.|=)/g, ' ')
+  leftStr = leftStr.replace(/(?<!this)\.|=/g, ' ')
   let leftStrArr = leftStr.split(' ').filter(Boolean) // 过滤出真值
   return strArr.some(str => leftStrArr.includes(str)) // 左侧内容是否为已选择的内容
 }
