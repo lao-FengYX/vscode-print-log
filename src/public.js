@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-10-18 13:49:51
+ * @LastEditTime: 2023-11-02 10:24:24
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -101,9 +101,11 @@ const getConfig = () => {
  * @return {Number|undefined}
  */
 const getCloseBracketLine = (document, line, bracket = '{') => {
+  const temp = line
   let startBracket = 0
   let endBracket = 0
-  while (line <= document.lineCount) {
+  // 不写小于不执行后面的return
+  while (line < document.lineCount) {
     const { startNum, endNum } = getBracketNum(document.lineAt(line).text, bracket)
     startBracket += startNum
     endBracket += endNum
@@ -112,7 +114,7 @@ const getCloseBracketLine = (document, line, bracket = '{') => {
     }
     line++
   }
-  return
+  return temp
 }
 
 /**

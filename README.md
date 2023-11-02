@@ -34,7 +34,13 @@
 
 <img src="public/img/example2.gif" alt="select log" title="example2" width="70%">
 
-**快捷键可以自行修改**
+### 注意
+
+- 建议开启 `"files.insertFinalNewline": true,` 配置项, 否则如果需要打印的行是最后一行 不会进行打印
+
+- 当需要打印的行中如果存在 `(` 和 `)` 不相等的情况, 建议手动打印, 否则如果当前文件过大, 会非常消耗性能
+
+#### 快捷键可以自行修改
 
 其他的可以在右键菜单查看
 
