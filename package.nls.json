@@ -1,0 +1,12 @@
+{
+  "print-log.clean.format.tip": "Format the current document after clearing the console",
+  "print-log.output.log.tip": "Adding some labels before the output logs makes it easier to find your logs",
+  "print-log.output.select.label": "Select quotation marks",
+  "print-log.output.select.single.tip": "Wrap custom content with single quotation marks",
+  "print-log.output.select.double.tip": "Wrap custom content with double quotation marks",
+  "print-log.output.select.backticks.tip": "Wrap custom content with back quotes",
+  "print-log.output.semicolon.tip": "semicolon is required",
+  "print-log.output.needFileName.tip":"Do you need to print the file name (ps: after the customized content)",
+  "print-log.output.needLineNumber.tip":"Do you need to print the line number (ps: after the file name)",
+  "print-log.output.move the cursor.tip":"Move the cursor to the appropriate position after triggering the command"
+}

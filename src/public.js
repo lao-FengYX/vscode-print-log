@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-11-02 10:24:24
+ * @LastEditTime: 2023-11-03 10:52:36
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -104,9 +104,12 @@ const getCloseBracketLine = (document, line, bracket = '{') => {
   const temp = line
   let startBracket = 0
   let endBracket = 0
+  let text
+
   // 不写小于不执行后面的return
   while (line < document.lineCount) {
-    const { startNum, endNum } = getBracketNum(document.lineAt(line).text, bracket)
+    text = document.lineAt(line).text
+    const { startNum, endNum } = getBracketNum(text, bracket)
     startBracket += startNum
     endBracket += endNum
     if (startBracket - endBracket === 0) {
@@ -143,10 +146,148 @@ const getBracketNum = (text, bracket) => {
   }
 }
 
+/**
+ * @author: WR
+ * @Date: 2023-10-30 15:22:11
+ * @description: 找到函数参数的打印位置
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ * @return {Number}
+ */
+const getNotContainLineNum = (document, num) => {
+  const temp = num
+  const thenReg = /\.(then|catch|finally)/
+  const fnEndReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/
+
+  let notFirstLine = false // 如果当前不是第一行
+
+  while (num < document.lineCount) {
+    let text = document.lineAt(num).text.trim()
+    if (text === '') {
+      return num - 1
+    }
+    if (!thenReg.test(text) && notFirstLine) {
+      return num - 1
+    }
+    if (thenReg.test(text) && fnEndReg.test(text)) {
+      return num
+    }
+    num++
+    notFirstLine = true
+  }
+
+  return temp
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-10-30 10:33:06
+ * @description: 找到接受返回值的位置
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ * @return {Number}
+ */
+const getLeftIncludeLineNum = (document, num) => {
+  let text = document.lineAt(num + 1).text.trim()
+  const thenReg = /^\.(then|catch|finally)/
+
+  if (!thenReg.test(text) || text === '') {
+    return num
+  } else {
+    let lineNum = getCloseBracketLine(document, num + 1, '(') // 获取结束括号的行号
+    return getLeftIncludeLineNum(document, lineNum)
+  }
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-10-24 09:14:47
+ * @description: 选择的内容是否包含左侧内容
+ * @param {String} currentText
+ * @param {String} strArr
+ * @return {Boolean}
+ */
+const confirmInclude = (currentText, strArr) => {
+  let leftStr = currentText.trim()?.split('(')[0] || '' // 获取参数左侧的内容
+  leftStr = leftStr.replace(/=/g, ' ')
+
+  let leftStrArr = leftStr
+    .split(' ')
+    .filter(Boolean)
+    .flatMap((t, i) => {
+      if (i === 0) return [t, ...t.split('.')]
+      return t.split('.')
+    }) // 过滤出真值
+  return strArr.some(str => leftStrArr.includes(str)) // 左侧内容是否为已选择的内容
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-11-02 17:11:45
+ * @description: 查找反引号结束行号
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ * @return {Number}
+ */
+const findBackticksLineNum = (document, num) => {
+  const backtickReg = /`/g
+  let count = 0
+  let temp = num
+  let text
+
+  while (num < document.lineCount) {
+    text = document.lineAt(num).text.trim()
+    while (backtickReg.exec(text)) {
+      count++
+    }
+    if (count % 2 === 0) return num
+    num++
+  }
+  return temp
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-11-03 10:52:39
+ * @description: 处理需要打印的文本内容
+ * @param {Object} options
+ * @param {String} options.startAddStr
+ * @param {Boolean} options.needFileName
+ * @param {Boolean} options.needLineNumber
+ * @param {String} options.quote
+ * @param {String} options.fileName
+ * @param {Number} options.line
+ * @return {String} text
+ */
+const textHandle = ({ startAddStr, needFileName, needLineNumber, quote, fileName, line }) => {
+  let text = ''
+  // 开始位置增加的字符串
+  if (startAddStr !== '') {
+    text += `${needFileName || needLineNumber ? startAddStr + ' ' : startAddStr}`
+  }
+  // 需要文件名
+  if (needFileName) {
+    text += `${needLineNumber ? fileName + ' ' : fileName}`
+  }
+  // 需要当前行号
+  if (needLineNumber) {
+    text += `${needFileName ? '~ line: ' + (line + 1) : 'line: ' + (line + 1)}`
+  }
+  if (text !== '') {
+    text = `${quote}${text}${quote}, `
+  }
+  return text
+}
+
 module.exports = {
   moveTheCursor,
   getAllConsole,
   getConfig,
   getCloseBracketLine,
-  getBracketNum
+  getBracketNum,
+  getNotContainLineNum,
+  getLeftIncludeLineNum,
+  confirmInclude,
+  findBackticksLineNum,
+  textHandle
 }

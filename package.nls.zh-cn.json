@@ -1,0 +1,12 @@
+{
+  "print-log.clean.format.tip": "清空console之后 格式化当前文档",
+  "print-log.output.log.tip": "在输出的日志前面加一些标识, 更容易找到你的日志",
+  "print-log.output.select.label": "选择引号",
+  "print-log.output.select.single.tip": "使用单引号包裹自定义的内容",
+  "print-log.output.select.double.tip": "使用双引号包裹自定义的内容",
+  "print-log.output.select.backticks.tip": "使用反引号包裹自定义的内容",
+  "print-log.output.semicolon.tip": "是否需要分号",
+  "print-log.output.needFileName.tip":"是否需要打印文件名(ps: 在自定义的内容后面)",
+  "print-log.output.needLineNumber.tip":"是否需要打印行号(ps: 在文件名后面)",
+  "print-log.output.move the cursor.tip":"触发指令后移动光标到适当位置"
+}
