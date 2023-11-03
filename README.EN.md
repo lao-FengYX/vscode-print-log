@@ -46,4 +46,6 @@ When the command is triggered, if there is selected content, the selected conten
 
 Others can be viewed in the context menu
 
+#### If you like this plugin, please give me a star. Thanks
+
 **Enjoy!**
