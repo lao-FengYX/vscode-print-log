@@ -6,7 +6,8 @@
   "print-log.output.select.double.tip": "Wrap custom content with double quotation marks",
   "print-log.output.select.backticks.tip": "Wrap custom content with back quotes",
   "print-log.output.semicolon.tip": "semicolon is required",
-  "print-log.output.needFileName.tip":"Do you need to print the file name (ps: after the customized content)",
-  "print-log.output.needLineNumber.tip":"Do you need to print the line number (ps: after the file name)",
-  "print-log.output.move the cursor.tip":"Move the cursor to the appropriate position after triggering the command"
+  "print-log.output.needFileName.tip": "Do you need to print the file name (ps: after the customized content)",
+  "print-log.output.needLineNumber.tip": "Do you need to print the line number (ps: after the file name)",
+  "print-log.output.move the cursor.tip": "Move the cursor to the appropriate position after triggering the command",
+  "print-log.output.separate line.tip": "Is the selection printed on a separate line"
 }

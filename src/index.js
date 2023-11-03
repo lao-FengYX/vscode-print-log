@@ -68,10 +68,8 @@ function handlePrint(activeEditor, command) {
   let lineArr = [] // 获取行号
   selections.forEach(selection => {
     const words = document.getText(selection)
-    lineArr.push(selection.active.line)
-    if (words !== '') {
-      strArr.push(words)
-    }
+    lineArr.push({ num: selection.active.line, text: words })
+    strArr.push(words)
   })
   // 有选中的文本
   if (strArr.length) {

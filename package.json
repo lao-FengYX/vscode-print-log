@@ -172,6 +172,11 @@
           "type": "boolean",
           "default": false,
           "description": "%print-log.output.move the cursor.tip%"
+        },
+        "print-log.output.separate line": {
+          "type": "boolean",
+          "default": false,
+          "description": "%print-log.output.separate line.tip%"
         }
       }
     }

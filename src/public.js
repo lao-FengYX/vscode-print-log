@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-11-03 10:52:36
+ * @LastEditTime: 2023-11-03 16:43:02
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -22,6 +22,7 @@ const projectName = 'print-log'
  * @property {vscode.activeEditor} activeEditor
  * @property {vscode.Selection[]} selections
  * @property {?Number} offset 光标偏移距离
+ * @property {?Boolean} additional 光标错误 额外处理
  */
 /**
  * @author: WR
@@ -30,7 +31,14 @@ const projectName = 'print-log'
  * @param {MoveType|MovesType} obj
  * @return {*}
  */
-const moveTheCursor = ({ activeEditor, currentLineRange, text, offset = 1, selections }) => {
+const moveTheCursor = ({
+  activeEditor,
+  currentLineRange,
+  text,
+  offset = 1,
+  selections,
+  additional // 额外处理 用在把每个内容单独打印 separateLineHandle
+}) => {
   if (!selections) {
     const newPosition = currentLineRange.start.translate(0, text.length - offset) // 新的光标位置
     const newSelection = new vscode.Selection(newPosition, newPosition) // 创建新的选区
@@ -39,7 +47,11 @@ const moveTheCursor = ({ activeEditor, currentLineRange, text, offset = 1, selec
   } else {
     const document = activeEditor.document
     let positions = [] // 更新位置
-    selections.forEach(selection => {
+    selections.forEach((selection, index) => {
+      // 一旦插入行之后，光标位置会错误，所以需要额外处理
+      if (additional) {
+        selection.active.c += index
+      }
       const current = document.lineAt(selection.active)
       const range = current.range
       const currentText = current.text
