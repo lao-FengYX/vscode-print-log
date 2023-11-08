@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-11-03 17:17:39
+ * @LastEditTime: 2023-11-08 16:19:48
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -74,7 +74,7 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
     let waitingProcessing = [] // 待处理数组
 
     lineArr.forEach(line => {
-      const currentLine = document.lineAt(line) // 当前行
+      const currentLine = document.lineAt(line.num) // 当前行
       const currentLineRange = currentLine.range // 当前行范围
       let currentLineText = currentLine.text.trim() // 去掉空格的当前行的文本
 
@@ -97,7 +97,7 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
         needLineNumber,
         fileName,
         quote,
-        line
+        line: line.num
       })
       currentLineText = temp + currentLineText
 
@@ -149,7 +149,6 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
   }
 
   try {
-    strArr = strArr.filter(Boolean)
     const document = activeEditor.document
     const max = document.lineCount
     const maxLine = Math.max(...lineArr.map(i => i.num))
@@ -343,7 +342,7 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
           needLineNumber,
           fileName,
           quote,
-          line: insertLine + lineIndex // 排序后行号计算正确
+          line: insertLine + lineIndex, // 排序后行号计算正确
         })
 
         let insertLineText = `${preIndent}console.${text}(${temp + line.text})` // 要插入的文本

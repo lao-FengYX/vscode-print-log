@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 13:19:00
- * @LastEditTime: 2023-10-17 14:38:56
+ * @LastEditTime: 2023-11-08 16:13:34
  * @LastEditors: WR
  * @Description: 入口
  * @FilePath: \print-log\src\index.js
@@ -69,7 +69,9 @@ function handlePrint(activeEditor, command) {
   selections.forEach(selection => {
     const words = document.getText(selection)
     lineArr.push({ num: selection.active.line, text: words })
-    strArr.push(words)
+    if (words !== '') {
+      strArr.push(words)
+    }
   })
   // 有选中的文本
   if (strArr.length) {
