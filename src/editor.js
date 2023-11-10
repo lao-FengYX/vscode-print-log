@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-11-08 16:19:48
+ * @LastEditTime: 2023-11-10 16:57:06
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -11,7 +11,6 @@ const path = require('path')
 
 const {
   moveTheCursor,
-  getAllConsole,
   getConfig,
   getCloseBracketLine,
   getNotContainLineNum,
@@ -23,8 +22,6 @@ const {
 
 // 获取用户的所有配置
 let config = getConfig()
-// 清空console是否格式化
-let format = config.get('clean.format')
 // 开始填充的字符串
 let startAddStr = config.get('output.log')
 // 引号方式
@@ -39,21 +36,17 @@ let semicolon = config.get('output.semicolon is required')
 let needFileName = config.get('output.needFileName')
 // 是否需要行号
 let needLineNumber = config.get('output.needLineNumber')
-// 打印内容是否需要单独占一行
-let separateLine = config.get('output.separate line')
 
 // 监听配置项变化
 vscode.workspace.onDidChangeConfiguration(() => {
   // 获取用户的所有配置
   config = getConfig()
   startAddStr = config.get('output.log')
-  format = config.get('clean.format')
   quotationMarks = config.get('output.select quotation marks')
   isMove = config.get('output.move the cursor')
   semicolon = config.get('output.semicolon is required')
   needFileName = config.get('output.needFileName')
   needLineNumber = config.get('output.needLineNumber')
-  separateLine = config.get('output.separate line')
 })
 
 /**
@@ -142,11 +135,6 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
 const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
   // 没有选择的内容直接 return
   if (!strArr.length) return
-  // 单独处理拆分行
-  if (separateLine) {
-    separateLineHandle(activeEditor, text, strArr, lineArr)
-    return
-  }
 
   try {
     const document = activeEditor.document
@@ -342,7 +330,7 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
           needLineNumber,
           fileName,
           quote,
-          line: insertLine + lineIndex, // 排序后行号计算正确
+          line: insertLine + lineIndex // 排序后行号计算正确
         })
 
         let insertLineText = `${preIndent}console.${text}(${temp + line.text})` // 要插入的文本
@@ -412,8 +400,6 @@ class AutoCompletionItemProvider {
   provideCompletionItems(document, position) {
     this.upperCommand = this.command.slice(0, 1).toUpperCase() + this.command.slice(1)
 
-    // this.text = document.lineAt(position.line).text;
-
     const snippetCompletion = new vscode.CompletionItem(
       this.command,
       vscode.CompletionItemKind.Method
@@ -423,6 +409,34 @@ class AutoCompletionItemProvider {
     } (Print ${this.upperCommand})\n console.${this.command}(lineCode)`
     snippetCompletion.sortText = 0 // 排序
 
+    const line = document.lineAt(position).lineNumber // 第一个光标所在行
+    const scriptPosition = []
+    const startScriptReg = /<script.*>/g // script 开始标签
+    const endScriptReg = /<\/script>/g // script 结束标签
+    const checkExtReg = /\.(html|vue)$/g // 需要判断 script 标签的文件
+    const extname = path.extname(document.uri.fsPath) // 文件扩展名 返回的格式 .html
+
+    // 需要判断 script 位置
+    if (checkExtReg.test(extname)) {
+      // script 标签不能嵌套
+      for (let i = 0; i < document.lineCount; i++) {
+        let currentText = document.lineAt(i).text
+        if (startScriptReg.test(currentText)) {
+          scriptPosition.push({
+            start: i
+          })
+        }
+        if (endScriptReg.test(currentText)) {
+          scriptPosition.at(-1).end = i
+        }
+      }
+
+      // 当前行属于 script 标签内部
+      if (scriptPosition.some(pos => pos.start < line && line < pos.end)) {
+        return [snippetCompletion]
+      }
+      return
+    }
     return [snippetCompletion]
   }
 
@@ -443,47 +457,9 @@ class AutoCompletionItemProvider {
   }
 }
 
-/**
- * @author: WR
- * @Date: 2023-10-12 09:19:30
- * @description: 注册删除所有console的指令
- * @param {vscode.ExtensionContext} context
- * @return {*}
- */
-const registerRemoveAllConsole = context => {
-  let disposable = vscode.commands.registerCommand('print.cleanConsole', () => {
-    const editor = vscode.window.activeTextEditor
-    if (!editor) return
-
-    try {
-      const document = editor.document
-      let workspaceEdit = new vscode.WorkspaceEdit()
-
-      const allConsole = getAllConsole(editor)
-      allConsole.forEach(console => {
-        // 删除console
-        workspaceEdit.delete(document.uri, console)
-      })
-
-      vscode.workspace.applyEdit(workspaceEdit).then(() => {
-        if (format) {
-          // 触发vscode的格式化
-          vscode.commands.executeCommand('editor.action.formatDocument')
-        }
-        // 消息提示
-        vscode.window.showInformationMessage(`clear ${allConsole.length} console ✅`)
-      })
-    } catch (error) {
-      vscode.window.showErrorMessage(`clear console error ❌`)
-    }
-  })
-
-  context.subscriptions.push(disposable)
-}
-
 module.exports = {
   consoleHandle,
   selectHandle,
-  registerRemoveAllConsole,
+  separateLineHandle,
   AutoCompletionItemProvider
 }

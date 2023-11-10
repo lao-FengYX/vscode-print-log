@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 13:19:00
- * @LastEditTime: 2023-11-08 16:13:34
+ * @LastEditTime: 2023-11-10 17:40:27
  * @LastEditors: WR
  * @Description: 入口
  * @FilePath: \print-log\src\index.js
@@ -11,9 +11,12 @@ const vscode = require('vscode')
 const {
   consoleHandle,
   selectHandle,
-  registerRemoveAllConsole,
+  separateLineHandle,
   AutoCompletionItemProvider
 } = require('./editor')
+const { registerRemoveAllConsole } = require('./remove')
+
+const { getConfig } = require('./public')
 
 let language = ['html', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'vue']
 
@@ -53,6 +56,16 @@ function activate(context) {
   registerRemoveAllConsole(context)
 }
 
+// 获取用户的所有配置
+let config = getConfig()
+// 打印内容是否需要单独占一行
+let separateLine = config.get('output.separate line')
+// 监听配置项变化
+vscode.workspace.onDidChangeConfiguration(() => {
+  config = getConfig()
+  separateLine = config.get('output.separate line')
+})
+
 /**
  * @author: WR
  * @Date: 2023-10-17 13:59:01
@@ -75,7 +88,7 @@ function handlePrint(activeEditor, command) {
   })
   // 有选中的文本
   if (strArr.length) {
-    selectHandle(activeEditor, command, strArr, lineArr)
+    ;(separateLine ? separateLineHandle : selectHandle)?.(activeEditor, command, strArr, lineArr)
   } else {
     // 没有选中的文本
     consoleHandle(activeEditor, command, lineArr)
