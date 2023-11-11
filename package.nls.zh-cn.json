@@ -1,13 +1,14 @@
 {
-  "print-log.clean.format.tip": "清空console之后 格式化当前文档",
-  "print-log.output.log.tip": "在输出的日志前面加一些标识, 更容易找到你的日志",
-  "print-log.output.select.label": "选择引号",
-  "print-log.output.select.single.tip": "使用单引号包裹自定义的内容",
-  "print-log.output.select.double.tip": "使用双引号包裹自定义的内容",
-  "print-log.output.select.backticks.tip": "使用反引号包裹自定义的内容",
-  "print-log.output.semicolon.tip": "是否需要分号",
-  "print-log.output.needFileName.tip": "是否需要打印文件名(ps: 在自定义的内容后面)",
-  "print-log.output.needLineNumber.tip": "是否需要打印行号(ps: 在文件名后面)",
-  "print-log.output.move the cursor.tip": "触发指令后移动光标到适当位置",
-  "print-log.output.separate line.tip": "打印选择内容是否是单独一行"
+  "clean.format.tip": "执行删除或清空之后 格式化当前文档(适用于所有删除或清空操作)",
+  "output.log.tip": "在输出的日志前面加一些标识, 更容易找到你的日志",
+  "output.select.label": "选择引号",
+  "output.select.single.tip": "使用单引号包裹自定义的内容",
+  "output.select.double.tip": "使用双引号包裹自定义的内容",
+  "output.select.backticks.tip": "使用反引号包裹自定义的内容",
+  "output.semicolon.tip": "是否需要分号",
+  "output.needFileName.tip": "是否需要打印文件名(ps: 在自定义的内容后面)",
+  "output.needLineNumber.tip": "是否需要打印行号(ps: 在文件名后面)",
+  "output.move the cursor.tip": "触发指令后移动光标到适当位置",
+  "output.separate line.tip": "打印选择内容是否是单独一行",
+  "clean.delete comments and empty line.tip": "删除所有注释后删除空行"
 }

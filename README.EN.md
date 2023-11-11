@@ -6,7 +6,9 @@ This is a plugin that helps you quickly print
 
 You can input corresponding instructions at the beginning/end of the current line to trigger completion
 
-And it comes with a one click function to clear all `consoles` (in the `Print `right-click menu)
+it comes with a one click function to clear all `consoles` (in the `Print `right-click menu)
+
+Comes with the function of deleting all comments and blank lines with one click (in the 'Print' right-click menu)
 
 ### Trigger instruction
 

@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 13:19:00
- * @LastEditTime: 2023-11-10 17:40:27
+ * @LastEditTime: 2023-11-11 20:24:44
  * @LastEditors: WR
  * @Description: 入口
  * @FilePath: \print-log\src\index.js
@@ -14,7 +14,12 @@ const {
   separateLineHandle,
   AutoCompletionItemProvider
 } = require('./editor')
-const { registerRemoveAllConsole } = require('./remove')
+
+const {
+  registerRemoveAllConsole,
+  registerRemoveAllComment,
+  registerRemoveAllEmptyLine
+} = require('./remove')
 
 const { getConfig } = require('./public')
 
@@ -54,6 +59,10 @@ function activate(context) {
 
   // 注册清空所有console的指令
   registerRemoveAllConsole(context)
+  // 注册清空所有注释的指令
+  registerRemoveAllComment(context)
+  // 注册清空所有空行的指令
+  registerRemoveAllEmptyLine(context)
 }
 
 // 获取用户的所有配置

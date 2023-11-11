@@ -56,6 +56,14 @@
       {
         "command": "print.cleanConsole",
         "title": "Print CleanConsole"
+      },
+      {
+        "command": "print.removeAllComment",
+        "title": "Print RemoveAllComment"
+      },
+      {
+        "command": "print.removeAllEmptyLine",
+        "title": "Print RemoveAllEmptyLine"
       }
     ],
     "keybindings": [
@@ -116,6 +124,16 @@
           "command": "print.cleanConsole",
           "when": "editorTextFocus",
           "group": "print-menu@6"
+        },
+        {
+          "command": "print.removeAllComment",
+          "when": "editorTextFocus",
+          "group": "print-menu@7"
+        },
+        {
+          "command": "print.removeAllEmptyLine",
+          "when": "editorTextFocus",
+          "group": "print-menu@8"
         }
       ]
     },
@@ -131,12 +149,12 @@
         "print-log.clean.format": {
           "type": "boolean",
           "default": true,
-          "description": "%print-log.clean.format.tip%"
+          "description": "%clean.format.tip%"
         },
         "print-log.output.log": {
           "type": "string",
           "default": "",
-          "description": "%print-log.output.log.tip%"
+          "description": "%output.log.tip%"
         },
         "print-log.output.select quotation marks": {
           "type": "string",
@@ -146,37 +164,42 @@
             "Double Quotes",
             "Backticks"
           ],
-          "description": "%print-log.output.select.label%",
+          "description": "%output.select.label%",
           "enumDescriptions": [
-            "%print-log.output.select.single.tip%",
-            "%print-log.output.select.double.tip%",
-            "%print-log.output.select.backticks.tip%"
+            "%output.select.single.tip%",
+            "%output.select.double.tip%",
+            "%output.select.backticks.tip%"
           ]
         },
         "print-log.output.semicolon is required": {
           "type": "boolean",
           "default": false,
-          "description": "%print-log.output.semicolon.tip%"
+          "description": "%output.semicolon.tip%"
         },
         "print-log.output.needFileName": {
           "type": "boolean",
           "default": false,
-          "description": "%print-log.output.needFileName.tip%"
+          "description": "%output.needFileName.tip%"
         },
         "print-log.output.needLineNumber": {
           "type": "boolean",
           "default": false,
-          "description": "%print-log.output.needLineNumber.tip%"
+          "description": "%output.needLineNumber.tip%"
         },
         "print-log.output.move the cursor": {
           "type": "boolean",
           "default": false,
-          "description": "%print-log.output.move the cursor.tip%"
+          "description": "%output.move the cursor.tip%"
         },
         "print-log.output.separate line": {
           "type": "boolean",
+          "default": true,
+          "description": "%output.separate line.tip%"
+        },
+        "print-log.clean.delete comments and empty line": {
+          "type": "boolean",
           "default": false,
-          "description": "%print-log.output.separate line.tip%"
+          "description": "%clean.delete comments and empty line.tip%"
         }
       }
     }
