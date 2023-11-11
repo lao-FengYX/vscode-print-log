@@ -25,7 +25,7 @@
 | 快捷键     |                      结果 |
 | ---------- | ------------------------: |
 | ctrl+alt+l | console.log(lineContent) |
-| ctrl+alt+d | console.table(lineContent) |
+| ctrl+alt+t | console.table(lineContent) |
 | ctrl+alt+d | console.dir(lineContent) |
 |            | console.warn(lineContent) |
 |            | console.error(lineContent) |

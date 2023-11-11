@@ -25,7 +25,7 @@ When the command is triggered, if there is selected content, the selected conten
 | Shortcut keys    |                      result |
 | ---------- | ------------------------: |
 | ctrl+alt+l | console.log(lineContent) |
-| ctrl+alt+d | console.table(lineContent) |
+| ctrl+alt+t | console.table(lineContent) |
 | ctrl+alt+d | console.dir(lineContent) |
 |            | console.warn(lineContent) |
 |            | console.error(lineContent) |
