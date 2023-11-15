@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-11-10 16:57:06
+ * @LastEditTime: 2023-11-15 11:04:32
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -36,6 +36,8 @@ let semicolon = config.get('output.semicolon is required')
 let needFileName = config.get('output.needFileName')
 // 是否需要行号
 let needLineNumber = config.get('output.needLineNumber')
+// 获取缩进
+let tabSize = vscode.workspace.getConfiguration('editor').get('tabSize')
 
 // 监听配置项变化
 vscode.workspace.onDidChangeConfiguration(() => {
@@ -47,6 +49,7 @@ vscode.workspace.onDidChangeConfiguration(() => {
   semicolon = config.get('output.semicolon is required')
   needFileName = config.get('output.needFileName')
   needLineNumber = config.get('output.needLineNumber')
+  tabSize = vscode.workspace.getConfiguration('editor').get('tabSize')
 })
 
 /**
@@ -173,12 +176,13 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     let judgmentNum = 0 // 0是包含左侧内容 1是不包含
 
     if (funcResult) {
-      preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取下一行缩进
+      preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
       let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
 
       if (include) {
         lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
-        preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
+      } else {
+        preIndent = preIndent.padStart(preIndent.length + tabSize, ' ')
       }
     } else if (braketResult) {
       judgment = true // 需要进一步判断缩进
@@ -197,9 +201,17 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     nextLine = document.lineAt(insertLine)
     nextLineRange = nextLine.range // 更改移动光标范围
     if (!funcResult && judgment) {
+      const tempText = document.lineAt(insertLine - 1).text // 要插入行的上一行
+      const thenReg = /\.(then|catch|finally)/g
+      let thenResult = thenReg.test(tempText)
+      let funcResult = funcReg.test(tempText)
       preIndent =
-        (judgmentNum === 0 ? currentText : document.lineAt(insertLine).text).match(/^\s*/)?.[0] ||
-        '' // 获取缩进
+        (judgmentNum === 0
+          ? currentText
+          : thenResult && funcResult
+          ? tempText.padStart(tempText.length + tabSize, ' ')
+          : currentText
+        ).match(/^\s*/)?.[0] || '' // 获取缩进
     }
 
     const index = marks.indexOf(quotationMarks)
@@ -290,12 +302,13 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
         let judgmentNum = 0 // 0是包含左侧内容 1是不包含
 
         if (funcResult) {
-          preIndent = nextLine.text.match(/^\s*/)?.[0] || '' // 获取下一行缩进
+          preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
           let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
 
           if (include) {
             lineNum = getCloseBracketLine(document, line.num) // 获取结束括号的行号
-            preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
+          } else {
+            preIndent = preIndent.padStart(preIndent.length + tabSize, ' ')
           }
         } else if (braketResult) {
           judgment = true // 需要进一步判断缩进
@@ -314,10 +327,17 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
         nextLine = document.lineAt(insertLine)
         nextLineRange = nextLine.range // 更改移动光标范围
         if (!funcResult && judgment) {
+          const tempText = document.lineAt(insertLine - 1).text // 要插入行的上一行
+          const thenReg = /\.(then|catch|finally)/g
+          let thenResult = thenReg.test(tempText)
+          let funcResult = funcReg.test(tempText)
           preIndent =
-            (judgmentNum === 0 ? currentText : document.lineAt(insertLine).text).match(
-              /^\s*/
-            )?.[0] || '' // 获取缩进
+            (judgmentNum === 0
+              ? currentText
+              : thenResult && funcResult
+              ? tempText.padStart(tempText.length + tabSize, ' ')
+              : currentText
+            ).match(/^\s*/)?.[0] || '' // 获取缩进
         }
 
         const index = marks.indexOf(quotationMarks)
