@@ -431,24 +431,25 @@ class AutoCompletionItemProvider {
 
     const line = document.lineAt(position).lineNumber // 第一个光标所在行
     const scriptPosition = []
-    const startScriptReg = /<script.*>/g // script 开始标签
+    const startScriptReg = /<script[\s\S]*?>/g // script 开始标签
     const endScriptReg = /<\/script>/g // script 结束标签
+    const text = document.getText()
     const checkExtReg = /\.(html|vue)$/g // 需要判断 script 标签的文件
     const extname = path.extname(document.uri.fsPath) // 文件扩展名 返回的格式 .html
 
     // 需要判断 script 位置
     if (checkExtReg.test(extname)) {
       // script 标签不能嵌套
-      for (let i = 0; i < document.lineCount; i++) {
-        let currentText = document.lineAt(i).text
-        if (startScriptReg.test(currentText)) {
-          scriptPosition.push({
-            start: i
-          })
-        }
-        if (endScriptReg.test(currentText)) {
-          scriptPosition.at(-1).end = i
-        }
+      let startMatch, endMatch
+      while ((startMatch = startScriptReg.exec(text))) {
+        endMatch = endScriptReg.exec(text)
+        const start = document.positionAt(startMatch.index + startMatch[0].length).line // 开始位置
+        const end = document.positionAt(endMatch.index + endMatch[0].length).line || start // 结束位置
+
+        scriptPosition.push({
+          start,
+          end
+        })
       }
 
       // 当前行属于 script 标签内部
