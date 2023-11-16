@@ -427,18 +427,19 @@ class AutoCompletionItemProvider {
     snippetCompletion.detail = `${
       this.language === 'zh-cn' ? '快速打印当前行' : 'Quickly print the current line'
     } (Print ${this.upperCommand})\n console.${this.command}(lineCode)`
-    snippetCompletion.sortText = 0 // 排序
+    snippetCompletion.sortText = '0' // 排序
 
-    const line = document.lineAt(position).lineNumber // 第一个光标所在行
-    const scriptPosition = []
-    const startScriptReg = /<script[\s\S]*?>/g // script 开始标签
-    const endScriptReg = /<\/script>/g // script 结束标签
-    const text = document.getText()
-    const checkExtReg = /\.(html|vue)$/g // 需要判断 script 标签的文件
     const extname = path.extname(document.uri.fsPath) // 文件扩展名 返回的格式 .html
+    const checkExtReg = /\.(html|vue)$/g // 需要判断 script 标签的文件
 
     // 需要判断 script 位置
     if (checkExtReg.test(extname)) {
+      const line = document.lineAt(position).lineNumber // 第一个光标所在行
+      const scriptPosition = []
+      const startScriptReg = /<script[\s\S]*?>/g // script 开始标签
+      const endScriptReg = /<\/script>/g // script 结束标签
+      const text = document.getText()
+
       // script 标签不能嵌套
       let startMatch, endMatch
       while ((startMatch = startScriptReg.exec(text))) {
