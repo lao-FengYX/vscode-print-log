@@ -25,13 +25,13 @@ let config = getConfig()
 // 开始填充的字符串
 let startAddStr = config.get('output.log')
 // 引号方式
-let quotationMarks = config.get('output.select quotation marks')
+let quotationMarks = config.get('output.selectQuotationMarks')
 // 引号数组  0 单引号  1 双引号  2 反引号
 const marks = ['Single Quote', 'Double Quotes', 'Backticks']
 // 是否移动光标到适当位置
-let isMove = config.get('output.move the cursor')
+let isMove = config.get('output.moveTheCursor')
 // 是否需要分号
-let semicolon = config.get('output.semicolon is required')
+let semicolon = config.get('output.semicolonIsRequired')
 // 是否需要文件名
 let needFileName = config.get('output.needFileName')
 // 是否需要行号
@@ -44,9 +44,9 @@ vscode.workspace.onDidChangeConfiguration(() => {
   // 获取用户的所有配置
   config = getConfig()
   startAddStr = config.get('output.log')
-  quotationMarks = config.get('output.select quotation marks')
-  isMove = config.get('output.move the cursor')
-  semicolon = config.get('output.semicolon is required')
+  quotationMarks = config.get('output.selectQuotationMarks')
+  isMove = config.get('output.moveTheCursor')
+  semicolon = config.get('output.semicolonIsRequired')
   needFileName = config.get('output.needFileName')
   needLineNumber = config.get('output.needLineNumber')
   tabSize = vscode.workspace.getConfiguration('editor').get('tabSize')

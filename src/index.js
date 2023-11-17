@@ -68,11 +68,11 @@ function activate(context) {
 // 获取用户的所有配置
 let config = getConfig()
 // 打印内容是否需要单独占一行
-let separateLine = config.get('output.separate line')
+let separateLine = config.get('output.separateLine')
 // 监听配置项变化
 vscode.workspace.onDidChangeConfiguration(() => {
   config = getConfig()
-  separateLine = config.get('output.separate line')
+  separateLine = config.get('output.separateLine')
 })
 
 /**

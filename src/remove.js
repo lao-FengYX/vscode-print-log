@@ -7,12 +7,12 @@ let config = getConfig()
 // 清空console是否格式化
 let format = config.get('clean.format')
 // 删除所有注释后删除空行
-let removeEmptyLine = config.get('clean.delete comments and empty line')
+let removeEmptyLine = config.get('clean.deleteCommentsAndEmptyLine')
 // 监听配置项变化
 vscode.workspace.onDidChangeConfiguration(() => {
   config = getConfig()
   format = config.get('clean.format')
-  removeEmptyLine = config.get('clean.delete comments and empty line')
+  removeEmptyLine = config.get('clean.deleteCommentsAndEmptyLine')
 })
 
 /**

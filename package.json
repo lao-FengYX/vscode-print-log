@@ -156,7 +156,7 @@
           "default": "",
           "description": "%output.log.tip%"
         },
-        "print-log.output.select quotation marks": {
+        "print-log.output.selectQuotationMarks": {
           "type": "string",
           "default": "Single Quote",
           "enum": [
@@ -171,7 +171,7 @@
             "%output.select.backticks.tip%"
           ]
         },
-        "print-log.output.semicolon is required": {
+        "print-log.output.semicolonIsRequired": {
           "type": "boolean",
           "default": false,
           "description": "%output.semicolon.tip%"
@@ -186,17 +186,17 @@
           "default": false,
           "description": "%output.needLineNumber.tip%"
         },
-        "print-log.output.move the cursor": {
+        "print-log.output.moveTheCursor": {
           "type": "boolean",
           "default": false,
           "description": "%output.move the cursor.tip%"
         },
-        "print-log.output.separate line": {
+        "print-log.output.separateLine": {
           "type": "boolean",
           "default": true,
           "description": "%output.separate line.tip%"
         },
-        "print-log.clean.delete comments and empty line": {
+        "print-log.clean.deleteCommentsAndEmptyLine": {
           "type": "boolean",
           "default": false,
           "description": "%clean.delete comments and empty line.tip%"
