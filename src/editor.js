@@ -153,9 +153,10 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     let preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
 
     const objReg = /=\s*{$/g // 如果是对象结尾
+    const classReg = /class\s(.*)\s*{$/g // 如果是class
     const arrReg = /=\s*\[$/g // 数组结尾
 
-    let objResult = objReg.test(currentText)
+    let objResult = objReg.test(currentText) || classReg.test(currentText)
     let arrResult = arrReg.test(currentText)
 
     // 精简一下
@@ -279,9 +280,10 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
         let preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
 
         const objReg = /=\s*{$/g // 如果是对象结尾
+        const classReg = /class\s(.*)\s*{$/g // 如果是class
         const arrReg = /=\s*\[$/g // 数组结尾
 
-        let objResult = objReg.test(currentText)
+        let objResult = objReg.test(currentText) || classReg.test(currentText)
         let arrResult = arrReg.test(currentText)
 
         // 精简一下
