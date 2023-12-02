@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-11-03 16:43:02
+ * @LastEditTime: 2023-12-02 20:06:04
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -97,10 +97,11 @@ const getAllConsole = editor => {
  * @author: WR
  * @Date: 2023-10-14 09:47:33
  * @description: 获取当前插件的全部配置
+ * @param {?String} configName 配置名 默认 print-log
  * @return {vscode.WorkspaceConfiguration}
  */
-const getConfig = () => {
-  return vscode.workspace.getConfiguration(projectName)
+const getConfig = configName => {
+  return vscode.workspace.getConfiguration(configName ? configName : projectName)
 }
 
 /**

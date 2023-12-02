@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-12-02 17:35:25
+ * @LastEditTime: 2023-12-02 20:17:08
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -37,7 +37,7 @@ let needFileName = config.get('output.needFileName')
 // 是否需要行号
 let needLineNumber = config.get('output.needLineNumber')
 // 获取缩进
-let tabSize = vscode.workspace.getConfiguration('editor').get('tabSize')
+let tabSize = getConfig('editor').get('tabSize')
 
 // 监听配置项变化
 vscode.workspace.onDidChangeConfiguration(() => {
@@ -49,7 +49,7 @@ vscode.workspace.onDidChangeConfiguration(() => {
   semicolon = config.get('output.semicolonIsRequired')
   needFileName = config.get('output.needFileName')
   needLineNumber = config.get('output.needLineNumber')
-  tabSize = vscode.workspace.getConfiguration('editor').get('tabSize')
+  tabSize = getConfig('editor').get('tabSize')
 })
 
 /**
