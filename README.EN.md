@@ -6,6 +6,9 @@ This is a plugin that helps you quickly print
 
 You can input corresponding instructions at the beginning/end of the current line to trigger completion
 
+***Known issues***
+- [✅]  When entering instructions to complete at the start position, if the code immediately following it is deleted, **it is recommended to separate the start and end positions with spaces when triggering the instruction**
+
 it comes with a one click function to clear all `consoles` (in the `Print `right-click menu)
 
 Comes with the function of deleting all comments and blank lines with one click (in the 'Print' right-click menu)
@@ -46,7 +49,7 @@ When the command is triggered, if there is selected content, the selected conten
 
 #### The shortcut keys can be modified by yourself
 
-Others can be viewed in the context menu
+Other functions can be viewed in the right-click menu 'Print'
 
 #### If you like this plugin, please give me a star. Thanks
 

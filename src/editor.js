@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-11-15 11:04:32
+ * @LastEditTime: 2023-12-02 17:35:25
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -70,6 +70,11 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
     let waitingProcessing = [] // 待处理数组
 
     lineArr.forEach(line => {
+      // 如果当前位置不允许打印 跳过
+      if (!allowLog(path.extname(fileName), document, line.num)) {
+        return
+      }
+
       const currentLine = document.lineAt(line.num) // 当前行
       const currentLineRange = currentLine.range // 当前行范围
       let currentLineText = currentLine.text.trim() // 去掉空格的当前行的文本
@@ -144,8 +149,20 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     const max = document.lineCount
     const maxLine = Math.max(...lineArr.map(i => i.num))
     const currentLine = document.lineAt(maxLine)
-    const currentText = currentLine.text?.trimEnd() // 获取文本
+    const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
     const fileName = path.basename(document.uri.fsPath)
+
+    // 得到允许打印的值
+    strArr = lineArr
+      .filter(line => allowLog(path.extname(fileName), document, line.num))
+      .map(line => line.text)
+
+    let currentText = currentLine.text?.trimEnd() // 获取文本
+    if (commentReg.test(currentText)) {
+      // 截取除了注释外的所有字符
+      let normalText = currentText.slice(0, currentText.search(commentReg)).trimEnd() // 获取文本
+      currentText = normalText.trim() === '' ? currentText : normalText
+    }
 
     let nextLine = document.lineAt(maxLine + 1 >= max ? max - 1 : maxLine + 1)
     let nextLineRange = nextLine.range // 获取移动光标范围
@@ -272,8 +289,21 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     lineArr.sort((a, b) => a.num - b.num) // 排序
     lineArr.forEach((line, lineIndex) => {
       if (line.text) {
+        // 如果当前位置不允许打印 跳过
+        if (!allowLog(path.extname(fileName), document, line.num)) {
+          return
+        }
+
         const currentLine = document.lineAt(line.num)
-        const currentText = currentLine.text?.trimEnd() // 获取文本
+        const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
+
+        let currentText = currentLine.text?.trimEnd() // 获取文本
+        if (commentReg.test(currentText)) {
+          // 截取除了注释外的所有字符
+          let normalText = currentText.slice(0, currentText.search(commentReg)).trimEnd() // 获取文本
+          currentText = normalText.trim() === '' ? currentText : normalText
+        }
+
         let nextLine = document.lineAt(line.num + 1 >= max ? max - 1 : line.num + 1)
         let nextLineRange = nextLine.range // 获取移动光标范围
         let insertLine // 插入行
@@ -432,36 +462,10 @@ class AutoCompletionItemProvider {
     snippetCompletion.sortText = '0' // 排序
 
     const extname = path.extname(document.uri.fsPath) // 文件扩展名 返回的格式 .html
-    const checkExtReg = /\.(html|vue)$/g // 需要判断 script 标签的文件
-
-    // 需要判断 script 位置
-    if (checkExtReg.test(extname)) {
-      const line = document.lineAt(position).lineNumber // 第一个光标所在行
-      const scriptPosition = []
-      const startScriptReg = /<script[\s\S]*?>/g // script 开始标签
-      const endScriptReg = /<\/script>/g // script 结束标签
-      const text = document.getText()
-
-      // script 标签不能嵌套
-      let startMatch, endMatch
-      while ((startMatch = startScriptReg.exec(text))) {
-        endMatch = endScriptReg.exec(text)
-        const start = document.positionAt(startMatch.index + startMatch[0].length).line // 开始位置
-        const end = document.positionAt(endMatch.index + endMatch[0].length).line || start // 结束位置
-
-        scriptPosition.push({
-          start,
-          end
-        })
-      }
-
-      // 当前行属于 script 标签内部
-      if (scriptPosition.some(pos => pos.start < line && line < pos.end)) {
-        return [snippetCompletion]
-      }
-      return
+    if (allowLog(extname, document, position)) {
+      return [snippetCompletion]
     }
-    return [snippetCompletion]
+    return
   }
 
   /**
@@ -479,6 +483,47 @@ class AutoCompletionItemProvider {
     }
     return item
   }
+}
+
+/**
+ * @author: WR
+ * @Date: 2023-12-02 15:37:25
+ * @description: 当前位置是否允许打印
+ * @param {String} extname 文件后缀名
+ * @param {vscode.TextDocument} document 文档对象
+ * @param {Number|vscode.Position} position 光标位置对象
+ * @return {Boolean}
+ */
+const allowLog = (extname, document, position) => {
+  const checkExtReg = /\.(html|vue)$/ // 需要判断 script 标签的文件
+
+  // 需要判断 script 位置
+  if (checkExtReg.test(extname)) {
+    const line = typeof position === 'number' ? position : document.lineAt(position).lineNumber // 第一个光标所在行
+    const scriptPosition = []
+    const startScriptReg = /<script[\s\S]*?>/g // script 开始标签
+    const endScriptReg = /<\/script>/g // script 结束标签
+    const text = document.getText()
+
+    // script 标签不能嵌套
+    let startMatch, endMatch
+    while ((startMatch = startScriptReg.exec(text)) && (endMatch = endScriptReg.exec(text))) {
+      const start = document.positionAt(startMatch.index + startMatch[0].length).line // 开始位置
+      const end = document.positionAt(endMatch.index + endMatch[0].length).line || start // 结束位置
+
+      scriptPosition.push({
+        start,
+        end
+      })
+    }
+
+    // 当前行属于 script 标签内部
+    if (scriptPosition.some(pos => pos.start < line && line < pos.end)) {
+      return true
+    }
+    return false
+  }
+  return true
 }
 
 module.exports = {

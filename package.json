@@ -21,9 +21,12 @@
     "typescript",
     "console",
     "log",
+    "print",
+    "打印",
     "快速打印"
   ],
   "activationEvents": [
+    "onLanguage:html",
     "onLanguage:vue",
     "onLanguage:javascript",
     "onLanguage:typescript",
