@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-10-11 18:55:49
- * @LastEditTime: 2023-12-02 20:06:04
+ * @LastEditTime: 2023-12-07 17:08:26
  * @LastEditors: WR
  * @Description: 公共方法
  * @FilePath: \print-log\src\public.js
@@ -270,9 +270,18 @@ const findBackticksLineNum = (document, num) => {
  * @param {String} options.quote
  * @param {String} options.fileName
  * @param {Number} options.line
+ * @param {?String} options.selectText
  * @return {String} text
  */
-const textHandle = ({ startAddStr, needFileName, needLineNumber, quote, fileName, line }) => {
+const textHandle = ({
+  startAddStr,
+  needFileName,
+  needLineNumber,
+  quote,
+  fileName,
+  line,
+  selectText
+}) => {
   let text = ''
   // 开始位置增加的字符串
   if (startAddStr !== '') {
@@ -284,7 +293,11 @@ const textHandle = ({ startAddStr, needFileName, needLineNumber, quote, fileName
   }
   // 需要当前行号
   if (needLineNumber) {
-    text += `${needFileName ? '~ line: ' + (line + 1) : 'line: ' + (line + 1)}`
+    text += `${needFileName ? '~ ' : ''}${'line: ' + (line + 1)}`
+  }
+  if (selectText) {
+    text +=
+      text !== '' ? (text.endsWith(' ') ? '~ ' : ' ~ ') + selectText + ' ->' : selectText + ' ->'
   }
   if (text !== '') {
     text = `${quote}${text}${quote}, `

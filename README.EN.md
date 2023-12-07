@@ -6,9 +6,6 @@ This is a plugin that helps you quickly print
 
 You can input corresponding instructions at the beginning/end of the current line to trigger completion
 
-***Known issues***
-- [✅]  When entering instructions to complete at the start position, if the code immediately following it is deleted, **it is recommended to separate the start and end positions with spaces when triggering the instruction**
-
 it comes with a one click function to clear all `consoles` (in the `Print `right-click menu)
 
 Comes with the function of deleting all comments and blank lines with one click (in the 'Print' right-click menu)
@@ -46,6 +43,8 @@ When the command is triggered, if there is selected content, the selected conten
 - It is recommended to enable the `"files.insertFinalNewline": true,` configuration item, otherwise it will not be printed if the line to be printed is the last line
 
 - When you need to print a line if there is `str = text.trim()?. split('(') || ''` This kind of `(` and `)` are not equal, and the next line is another logical code is similar to the situation, it is recommended to print manually, otherwise if the current file is too large, it will be very performance-intensive
+
+- When entering instructions to complete at the start position, if the code immediately following it is deleted, **it is recommended to separate the start and end positions with spaces when triggering the instruction**
 
 #### The shortcut keys can be modified by yourself
 

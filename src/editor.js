@@ -1,7 +1,7 @@
 /*
  * @Author: WR
  * @Date: 2023-09-24 14:18:49
- * @LastEditTime: 2023-12-02 20:17:08
+ * @LastEditTime: 2023-12-07 17:33:54
  * @LastEditors: WR
  * @Description: 操作编辑器相关
  * @FilePath: \print-log\src\editor.js
@@ -36,6 +36,8 @@ let semicolon = config.get('output.semicolonIsRequired')
 let needFileName = config.get('output.needFileName')
 // 是否需要行号
 let needLineNumber = config.get('output.needLineNumber')
+// 是否输出选中文本
+let needOutputText = config.get('output.needSelectedText')
 // 获取缩进
 let tabSize = getConfig('editor').get('tabSize')
 
@@ -49,6 +51,7 @@ vscode.workspace.onDidChangeConfiguration(() => {
   semicolon = config.get('output.semicolonIsRequired')
   needFileName = config.get('output.needFileName')
   needLineNumber = config.get('output.needLineNumber')
+  needOutputText = config.get('output.needSelectedText')
   tabSize = getConfig('editor').get('tabSize')
 })
 
@@ -244,6 +247,10 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
       line: insertLine
     })
 
+    if (needOutputText) {
+      strArr = strArr.flatMap(i => [quote + i + ' ->' + quote, i])
+    }
+
     let insertLineText = `${preIndent}console.${text}(${temp + strArr.join(', ')})` // 要插入的文本
 
     semicolon ? (insertLineText += ';') : null // 需要分号
@@ -382,7 +389,8 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
           needLineNumber,
           fileName,
           quote,
-          line: insertLine + lineIndex // 排序后行号计算正确
+          line: insertLine + lineIndex, // 排序后行号计算正确
+          selectText: needOutputText ? line.text : ''
         })
 
         let insertLineText = `${preIndent}console.${text}(${temp + line.text})` // 要插入的文本

@@ -10,5 +10,6 @@
   "output.needLineNumber.tip": "是否需要打印行号(ps: 在文件名后面)",
   "output.move the cursor.tip": "触发指令后移动光标到适当位置",
   "output.separate line.tip": "打印选择内容是否是单独一行",
+  "output.needSelectedText.tip": "是否输出选中文本",
   "clean.delete comments and empty line.tip": "删除所有注释后删除空行"
 }

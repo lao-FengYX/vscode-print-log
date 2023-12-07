@@ -1,7 +1,7 @@
 {
   "name": "print-log",
   "displayName": "print-log",
-  "description": "javascript,typescript快速打印",
+  "description": "javascript typescript 快速打印",
   "version": "0.0.27",
   "icon": "./public/img/log.png",
   "author": "Lao Feng",
@@ -188,6 +188,11 @@
           "type": "boolean",
           "default": false,
           "description": "%output.needLineNumber.tip%"
+        },
+        "print-log.output.needSelectedText": {
+          "type": "boolean",
+          "default": false,
+          "description": "%output.needSelectedText.tip%"
         },
         "print-log.output.moveTheCursor": {
           "type": "boolean",
