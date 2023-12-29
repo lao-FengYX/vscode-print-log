@@ -55,6 +55,8 @@ vscode.workspace.onDidChangeConfiguration(() => {
   tabSize = getConfig('editor').get('tabSize')
 })
 
+let commandTrigger = false
+
 /**
  * @author: WR
  * @Date: 2023-09-24 14:21:12
@@ -86,12 +88,14 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
       const index = marks.indexOf(quotationMarks)
       const quote = index === 0 ? "'" : index === 1 ? '"' : '`'
 
-      // 判断是否是以当前打印的字符串开始或结束 如果是就清空
-      if (currentLineText.startsWith(text)) {
-        currentLineText = currentLineText.replace(text, '')
-      }
-      if (currentLineText.endsWith(text)) {
-        currentLineText = currentLineText.slice(0, currentLineText.length - text.length)
+      if (commandTrigger) {
+        // 判断是否是以当前打印的字符串开始或结束 如果是就清空
+        if (currentLineText.endsWith(text)) {
+          currentLineText = currentLineText.slice(0, currentLineText.length - text.length)
+        } else if (currentLineText.startsWith(text)) {
+          currentLineText = currentLineText.replace(text, '')
+        }
+        commandTrigger = false
       }
 
       // 开始位置增加的字符串
@@ -484,6 +488,8 @@ class AutoCompletionItemProvider {
    * @return {vscode.CompletionItem}
    */
   resolveCompletionItem(item) {
+    commandTrigger = true
+
     // 绑定触发指令
     item.command = {
       command: `print.${this.command}`,

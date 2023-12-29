@@ -117,6 +117,7 @@ const registerRemoveAllEmptyLine = context => {
       const emptyLineReg = /^\s*$/g // 匹配空行
       let waitArr = []
       let lineNum = 1
+      let boo = true // 开关
 
       while (lineNum < document.lineCount) {
         emptyLineReg.lastIndex = 0 // 重置lastIndex
@@ -126,12 +127,14 @@ const registerRemoveAllEmptyLine = context => {
         let prevRange = prevLine.range // 上一行的范围
         let text = line.text
 
-        if (prevLine.lineNumber === 0) {
-          // 判断第一行是否是空行
-          emptyLineReg.test(prevLine.text)
-            ? waitArr.push(new vscode.Range(prevRange.start, range.start))
-            : null
+        // 遇到第一个非空行，并且上一行也为空行，添加到待删除数组
+        if (text !== '' && boo) {
+          if (emptyLineReg.test(prevLine.text)) {
+            waitArr.push(new vscode.Range(prevRange.start, range.start))
+            boo = false
+          }
         }
+
         if (emptyLineReg.test(text)) {
           waitArr.push(new vscode.Range(prevRange.end, range.end))
         }
