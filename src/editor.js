@@ -468,13 +468,20 @@ class AutoCompletionItemProvider {
       this.command,
       vscode.CompletionItemKind.Method
     )
-    snippetCompletion.detail = `${
-      this.language === 'zh-cn' ? '快速打印当前行' : 'Quickly print the current line'
-    } (Print ${this.upperCommand})\n console.${this.command}(lineCode)`
+    snippetCompletion.documentation = new vscode.MarkdownString(
+      `${this.language === 'zh-cn' ? '快速打印当前行' : 'Quickly print the current line'} (Print ${
+        this.upperCommand
+      })\n\nconsole.${this.command}(lineCode)`
+    )
     snippetCompletion.sortText = '0' // 排序
 
     const extname = path.extname(document.uri.fsPath) // 文件扩展名 返回的格式 .html
-    if (allowLog(extname, document, position)) {
+
+    let text = document.lineAt(position).text
+    if (
+      allowLog(extname, document, position) &&
+      (text.endsWith(this.command.slice(0, 1)) || text.startsWith(this.command.slice(0, 1)))
+    ) {
       return [snippetCompletion]
     }
     return
