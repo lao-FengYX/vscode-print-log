@@ -305,6 +305,60 @@ const textHandle = ({
   return text
 }
 
+/**
+ * @author: WR
+ * @Date: 2024-1-22 17:31:45
+ * @description: 查找点或者问点结束行号
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ * @return {Number}
+ */
+const findDropLine = (document, num) => {
+  const dropReg = /^(\?)?\./
+  let text
+  while (num < document.lineCount) {
+    text = document.lineAt(num).text.trim()
+    if (!dropReg.test(text)) {
+      return num - 1
+    }
+    num++
+  }
+}
+
+/**
+ * @author: WR
+ * @Date: 2024-1-23 09:45:45
+ * @description: 查找三目结束行号
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ * @return {Number}
+ */
+const findTernaryLine = (document, num) => {
+  const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/ // 如果是以函数结尾 匹配当前行缩进
+  const askReg = /^\?(?!\.)/g
+  const colonReg = /^:/g
+  let line = num
+  let askNum = (colonNum = 0)
+  let text
+  while (num < document.lineCount) {
+    text = document.lineAt(num).text.trim()
+    if (askReg.exec(text)) {
+      askNum++
+    }
+    if (colonReg.exec(text)) {
+      colonNum++
+    }
+    if (askNum === colonNum) {
+      let nextText = document.lineAt(num + 1).text.trim()
+      if (!askReg.test(nextText) && !colonReg.test(nextText) && !funcReg.test(nextText)) {
+        return num - 1
+      }
+    }
+    num++
+  }
+  return line
+}
+
 module.exports = {
   moveTheCursor,
   getAllConsole,
@@ -315,5 +369,7 @@ module.exports = {
   getLeftIncludeLineNum,
   confirmInclude,
   findBackticksLineNum,
-  textHandle
+  textHandle,
+  findDropLine,
+  findTernaryLine
 }

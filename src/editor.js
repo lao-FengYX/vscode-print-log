@@ -17,7 +17,9 @@ const {
   getLeftIncludeLineNum,
   confirmInclude,
   findBackticksLineNum,
-  textHandle
+  textHandle,
+  findDropLine,
+  findTernaryLine
 } = require('./public')
 
 // 获取用户的所有配置
@@ -176,58 +178,32 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     let insertLine // 插入行
     let preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
 
-    const objReg = /=\s*{$/g // 如果是对象结尾
-    const classReg = /class\s(.*)\s*{$/g // 如果是class
-    const arrReg = /=\s*\[$/g // 数组结尾
+    let obj = { num: maxLine }
 
-    let objResult = objReg.test(currentText) || classReg.test(currentText)
-    let arrResult = arrReg.test(currentText)
+    let {
+      lineNum,
+      judgment,
+      judgmentNum,
+      preIndent: indent,
+      funcResult
+    } = loopFind({
+      document,
+      currentText,
+      line: obj,
+      preIndent,
+      nextLine,
+      strArr
+    })
 
-    // 精简一下
-    let lineNum
+    preIndent = indent
 
-    if (objResult || arrResult) {
-      lineNum = getCloseBracketLine(document, maxLine, objResult ? '{' : '[') // 获取结束括号的行号
-    } else if (currentText.includes('`')) {
-      lineNum = findBackticksLineNum(document, maxLine)
-    }
-
-    const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
-    const bracketReg = /\(.*$/g // 如果是括号结尾的
-
-    let funcResult = funcReg.test(currentText)
-    let braketResult = bracketReg.test(currentText)
-    let judgment = false // 是否需要进一步判断缩进
-    let judgmentNum = 0 // 0是包含左侧内容 1是不包含
-
-    if (funcResult) {
-      preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
-      let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
-
-      if (include) {
-        lineNum = getCloseBracketLine(document, maxLine) // 获取结束括号的行号
-      } else {
-        preIndent = preIndent.padStart(preIndent.length + tabSize, ' ')
-      }
-    } else if (braketResult) {
-      judgment = true // 需要进一步判断缩进
-      let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
-      lineNum = getCloseBracketLine(document, maxLine, '(') // 获取结束括号的行号
-      if (include) {
-        lineNum = getLeftIncludeLineNum(document, lineNum) // 判断Promise返回
-        judgmentNum = 0
-      } else {
-        lineNum = getNotContainLineNum(document, lineNum) // 判断Promise返回
-        judgmentNum = 1
-      }
-    }
-
-    insertLine = lineNum ? lineNum + 1 : maxLine + 1
+    insertLine = lineNum ? lineNum + 1 : obj.num + 1
     nextLine = document.lineAt(insertLine)
     nextLineRange = nextLine.range // 更改移动光标范围
     if (!funcResult && judgment) {
       const tempText = document.lineAt(insertLine - 1).text // 要插入行的上一行
       const thenReg = /\.(then|catch|finally)/g
+      const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
       let thenResult = thenReg.test(tempText)
       let funcResult = funcReg.test(tempText)
       preIndent =
@@ -287,7 +263,7 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
  * @param {vscode.TextEditor} activeEditor
  * @param {?String} text 指令
  * @param {String[]} strArr 选择的内容
- * @param {Number[]} lineArr 光标所在行
+ * @param {{num:Number,text:String}[]} lineArr 光标所在行
  * @return {*}
  */
 const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
@@ -320,51 +296,23 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
         let insertLine // 插入行
         let preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
 
-        const objReg = /=\s*{$/g // 如果是对象结尾
-        const classReg = /class\s(.*)\s*{$/g // 如果是class
-        const arrReg = /=\s*\[$/g // 数组结尾
-
-        let objResult = objReg.test(currentText) || classReg.test(currentText)
-        let arrResult = arrReg.test(currentText)
-
         // 精简一下
-        let lineNum
+        let {
+          lineNum,
+          judgment,
+          judgmentNum,
+          preIndent: indent,
+          funcResult
+        } = loopFind({
+          document,
+          currentText,
+          line,
+          preIndent,
+          nextLine,
+          strArr
+        })
 
-        if (objResult || arrResult) {
-          lineNum = getCloseBracketLine(document, line.num, objResult ? '{' : '[') // 获取结束括号的行号
-        } else if (currentText.includes('`')) {
-          lineNum = findBackticksLineNum(document, line.num)
-        }
-
-        const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
-        const bracketReg = /\(.*$/g // 如果是括号结尾的
-
-        let funcResult = funcReg.test(currentText)
-        let braketResult = bracketReg.test(currentText)
-        let judgment = false // 是否需要进一步判断缩进
-        let judgmentNum = 0 // 0是包含左侧内容 1是不包含
-
-        if (funcResult) {
-          preIndent = currentText.match(/^\s*/)?.[0] || '' // 获取当前行缩进
-          let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
-
-          if (include) {
-            lineNum = getCloseBracketLine(document, line.num) // 获取结束括号的行号
-          } else {
-            preIndent = preIndent.padStart(preIndent.length + tabSize, ' ')
-          }
-        } else if (braketResult) {
-          judgment = true // 需要进一步判断缩进
-          let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
-          lineNum = getCloseBracketLine(document, line.num, '(') // 获取结束括号的行号
-          if (include) {
-            lineNum = getLeftIncludeLineNum(document, lineNum) // 判断Promise返回
-            judgmentNum = 0
-          } else {
-            lineNum = getNotContainLineNum(document, lineNum) // 判断Promise返回
-            judgmentNum = 1
-          }
-        }
+        preIndent = indent
 
         insertLine = lineNum ? lineNum + 1 : line.num + 1
         nextLine = document.lineAt(insertLine)
@@ -372,6 +320,7 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
         if (!funcResult && judgment) {
           const tempText = document.lineAt(insertLine - 1).text // 要插入行的上一行
           const thenReg = /\.(then|catch|finally)/g
+          const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
           let thenResult = thenReg.test(tempText)
           let funcResult = funcReg.test(tempText)
           preIndent =
@@ -437,6 +386,118 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
 }
 
 /**
+ * @param {Object} option
+ * @param {vscode.TextDocument} option.document 文档对象
+ * @param {String} option.currentText 当前行内容
+ * @param {{num:Number,text:String}} option.line 光标所在行
+ * @param {String} option.preIndent 预缩进
+ * @param {vscode.TextLine} option.nextLine 下一行范围
+ * @param {String[]} option.strArr 选择的内容
+ * @param {Boolean} option.ternary 是否是由三目正则或者点正则调用
+ * @return {*}
+ */
+const loopFind = ({
+  document,
+  currentText,
+  line,
+  preIndent,
+  nextLine,
+  strArr,
+  ternary = false
+}) => {
+  const objReg = /=\s*{$/g // 如果是对象结尾
+  const classReg = /class\s(.*)\s*{$/g // 如果是class
+  const arrReg = /=\s*\[$/g // 数组结尾
+
+  let objResult = objReg.test(currentText) || classReg.test(currentText)
+  let arrResult = arrReg.test(currentText)
+
+  const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
+  const bracketReg = /\(.*$/g // 如果是括号结尾的
+
+  let funcResult = funcReg.test(currentText)
+  let braketResult = bracketReg.test(currentText)
+  let judgment = false // 是否需要进一步判断缩进
+  let judgmentNum = 0 // 0是包含左侧内容 1是不包含
+
+  const dropReg = /^(\?)?\./ // 匹配 . 开始或者 ?. 开始
+  const ternaryReg = /^\?(?!\.)|^:/ // 匹配 三目
+
+  let lineNum
+
+  if (objResult || arrResult) {
+    // 对象或数组结尾
+    lineNum = getCloseBracketLine(document, line.num, objResult ? '{' : '[') // 获取结束括号的行号
+  } else if (currentText.includes('`')) {
+    // 当前行包含 反引号
+    lineNum = findBackticksLineNum(document, line.num)
+  } else if (dropReg.test(nextLine.text.trim()) || ternaryReg.test(nextLine.text.trim())) {
+    // 匹配点或者问点  // 匹配三元
+    line.num = (dropReg.test(nextLine.text.trim()) ? findDropLine : findTernaryLine)(
+      document,
+      nextLine.lineNumber
+    )
+    let text = document.lineAt(line.num).text
+    // 更新 nextLine 范围
+    nextLine = document.lineAt(line.num + 1)
+    return loopFind({
+      document,
+      currentText: text,
+      line,
+      preIndent,
+      nextLine,
+      strArr,
+      ternary: true
+    })
+  } else if (funcResult) {
+    // 当前行是函数结尾
+    !ternary ? (preIndent = currentText.match(/^\s*/)?.[0] || '') : null // 获取当前行缩进
+    let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
+
+    if (include) {
+      lineNum = getCloseBracketLine(document, line.num) // 获取结束括号的行号
+    } else if (ternary) {
+      // 此处是正确找到 三目应该打印的行
+      // 如果出现函数多行的情况 找下一行
+      lineNum = getCloseBracketLine(document, line.num) // 获取结束括号的行号
+      line.num = lineNum
+      nextLine = document.lineAt(lineNum + 1)
+      let text = nextLine.text
+      return loopFind({
+        document,
+        currentText: text,
+        line,
+        preIndent,
+        nextLine,
+        strArr,
+        ternary
+      })
+    } else {
+      preIndent = preIndent.padStart(preIndent.length + tabSize, ' ')
+    }
+  } else if (braketResult && !ternary) {
+    judgment = true // 需要进一步判断缩进
+    let include = confirmInclude(currentText, strArr) // 是否包含左侧内容
+    lineNum = getCloseBracketLine(document, line.num, '(') // 获取结束括号的行号
+    if (include) {
+      lineNum = getLeftIncludeLineNum(document, lineNum) // 判断Promise返回
+      judgmentNum = 0
+    } else {
+      lineNum = getNotContainLineNum(document, lineNum) // 判断Promise返回
+      judgmentNum = 1
+    }
+  }
+
+  return {
+    funcResult,
+    lineNum,
+    judgment,
+    judgmentNum,
+    preIndent
+  }
+}
+
+/**
  * @author: WR
  * @Date: 2023-10-10 12:03:45
  * @description: 绑定自定义触发的代码片段
@@ -477,7 +538,7 @@ class AutoCompletionItemProvider {
 
     const extname = path.extname(document.uri.fsPath) // 文件扩展名 返回的格式 .html
 
-    let text = document.lineAt(position).text
+    let text = document.lineAt(position).text.trim()
     if (
       allowLog(extname, document, position) &&
       (text.endsWith(this.command.slice(0, 1)) || text.startsWith(this.command.slice(0, 1)))

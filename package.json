@@ -8,7 +8,11 @@
   "publisher": "LaoFeng",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lao-FengYX/print-log"
+    "url": "https://github.com/lao-FengYX/vscode-print-log"
+  },
+  "bugs": {
+    "email": "laofyx@163.com",
+    "url": "https://github.com/lao-FengYX/vscode-print-log/issues"
   },
   "engines": {
     "vscode": "^1.75.0"
