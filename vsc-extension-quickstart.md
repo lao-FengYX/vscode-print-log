@@ -2,40 +2,40 @@
 
 ## What's in the folder
 
-* This folder contains all of the files necessary for your extension.
-* `package.json` - this is the manifest file in which you declare your extension and command.
-  * The sample plugin registers a command and defines its title and command name. With this information VS Code can show the command in the command palette. It doesn’t yet need to load the plugin.
-* `extension.js` - this is the main file where you will provide the implementation of your command.
-  * The file exports one function, `activate`, which is called the very first time your extension is activated (in this case by executing the command). Inside the `activate` function we call `registerCommand`.
-  * We pass the function containing the implementation of the command as the second parameter to `registerCommand`.
+* 此文件夹包含扩展所需的所有文件。
+* `package.json` - 这是在其中声明扩展和命令的清单文件。
+  * 示例插件注册一个命令并定义其标题和命令名称。有了这些信息，VS Code 就可以在命令面板中显示命令。它还不需要加载插件。
+* `extension.js` - 这是主文件，您将在其中提供命令的实现。
+  * 该文件导出一个函数, `activate`, 这是第一次激活扩展时调用的（在本例中通过执行命令）。在 `activate` 函数中，我们调用 `registerCommand` 。
+  * 我们将包含命令实现的函数作为第二个参数传递给 `registerCommand`.
 
 ## Get up and running straight away
 
-* Press `F5` to open a new window with your extension loaded.
-* Run your command from the command palette by pressing (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) and typing `Hello World`.
-* Set breakpoints in your code inside `extension.js` to debug your extension.
-* Find output from your extension in the debug console.
+* 按 `F5` 打开一个加载了扩展的新窗口。
+* 通过按(`Ctrl+Shift+P` 或 在 Mac 上为 `Cmd+Shift+P`) 并键入 `Hello World`，从命令面板运行命令。
+* 在 `extension.js` 内的代码中设置断点以调试扩展。
+* 在调试控制台中查找扩展的输出。
 
 ## Make changes
 
-* You can relaunch the extension from the debug toolbar after changing code in `extension.js`.
-* You can also reload (`Ctrl+R` or `Cmd+R` on Mac) the VS Code window with your extension to load your changes.
+* 更改代码后，可以从调试工具栏重新启动扩展 `extension.js`.
+* 您也可以重新加载 (`Ctrl+R` 或 在 Mac 上为 `Cmd+R`) 带有扩展的 VS Code 窗口，用于加载更改。
 
 ## Explore the API
 
-* You can open the full set of our API when you open the file `node_modules/@types/vscode/index.d.ts`.
+* 当您打开文件时，您可以打开我们全套的 API `node_modules/@types/vscode/index.d.ts`.
 
 ## Run tests
 
-* Open the debug viewlet (`Ctrl+Shift+D` or `Cmd+Shift+D` on Mac) and from the launch configuration dropdown pick `Extension Tests`.
-* Press `F5` to run the tests in a new window with your extension loaded.
-* See the output of the test result in the debug console.
-* Make changes to `src/test/suite/extension.test.js` or create new test files inside the `test/suite` folder.
-  * The provided test runner will only consider files matching the name pattern `**.test.ts`.
-  * You can create folders inside the `test` folder to structure your tests any way you want.
+* 打开调试 viewlet(`Ctrl+Shift+D` 或 在 Mac 上为 `Cmd+Shift+D`)，然后从启动配置下拉列表中选择 `扩展测试`。
+* 按 `F5` 在加载扩展的新窗口中运行测试。
+* 在调试控制台中查看测试结果的输出。
+* 对 `src/test/suite/extension.test.js` 进行更改，或在 `test/suite` 文件夹中创建新的测试文件。
+  * 提供的测试运行程序将仅考虑与名称模式匹配的文件 `**.test.ts`.
+  * 您可以在 `test` 文件夹中创建文件夹，以任何您想要的方式构建测试。
 
 ## Go further
 
- * [Follow UX guidelines](https://code.visualstudio.com/api/ux-guidelines/overview) to create extensions that seamlessly integrate with VS Code's native interface and patterns.
- * [Publish your extension](https://code.visualstudio.com/api/working-with-extensions/publishing-extension) on the VS Code extension marketplace.
- * Automate builds by setting up [Continuous Integration](https://code.visualstudio.com/api/working-with-extensions/continuous-integration).
+ * [遵循用户体验准则](https://code.visualstudio.com/api/ux-guidelines/overview) 创建与 VS Code 的本机接口和模式无缝集成的扩展。
+ * [发布扩展](https://code.visualstudio.com/api/working-with-extensions/publishing-extension) 在 VS Code 扩展市场上。
+ * 通过设置 [持续集成](https://code.visualstudio.com/api/working-with-extensions/continuous-integration) 实现构建自动化.
