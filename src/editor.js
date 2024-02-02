@@ -203,7 +203,7 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     if (!funcResult && judgment) {
       const tempText = document.lineAt(insertLine - 1).text // 要插入行的上一行
       const thenReg = /\.(then|catch|finally)/g
-      const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
+      const funcReg = /\((.*)\)\s*(\:.*)?(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
       let thenResult = thenReg.test(tempText)
       let funcResult = funcReg.test(tempText)
       preIndent =
@@ -320,7 +320,7 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
         if (!funcResult && judgment) {
           const tempText = document.lineAt(insertLine - 1).text // 要插入行的上一行
           const thenReg = /\.(then|catch|finally)/g
-          const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
+          const funcReg = /\((.*)\)\s*(\:.*)?(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
           let thenResult = thenReg.test(tempText)
           let funcResult = funcReg.test(tempText)
           preIndent =
@@ -412,7 +412,7 @@ const loopFind = ({
   let objResult = objReg.test(currentText) || classReg.test(currentText)
   let arrResult = arrReg.test(currentText)
 
-  const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
+  const funcReg = /\((.*)\)\s*(\:.*)?(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
   const bracketReg = /\(.*$/g // 如果是括号结尾的
 
   let funcResult = funcReg.test(currentText)

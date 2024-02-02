@@ -334,7 +334,7 @@ const findDropLine = (document, num) => {
  * @return {Number}
  */
 const findTernaryLine = (document, num) => {
-  const funcReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/ // 如果是以函数结尾 匹配当前行缩进
+  const funcReg = /\((.*)\)\s*(\:.*)?(=>\s*)?{$|=>\s*{$/ // 如果是以函数结尾 匹配当前行缩进
   const askReg = /^\?(?!\.)/g
   const colonReg = /^:/g
   let line = num
