@@ -408,6 +408,13 @@ const loopFind = ({
   const objReg = /=\s*{$/g // 如果是对象结尾
   const classReg = /class\s(.*)\s*{$/g // 如果是class
   const arrReg = /=\s*\[$/g // 数组结尾
+  const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
+
+  if (commentReg.test(currentText)) {
+    // 截取除了注释外的所有字符
+    let normalText = currentText.slice(0, currentText.search(commentReg)).trimEnd() // 获取文本
+    currentText = normalText.trim() === '' ? currentText : normalText
+  }
 
   let objResult = objReg.test(currentText) || classReg.test(currentText)
   let arrResult = arrReg.test(currentText)
