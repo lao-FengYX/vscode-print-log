@@ -100,15 +100,18 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
         commandTrigger = false
       }
 
-      // 开始位置增加的字符串
-      let temp = textHandle({
-        startAddStr,
-        needFileName,
-        needLineNumber,
-        fileName,
-        quote,
-        line: line.num
-      })
+      let temp = ''
+      if (text === 'log') {
+        // 开始位置增加的字符串
+        temp = textHandle({
+          startAddStr,
+          needFileName,
+          needLineNumber,
+          fileName,
+          quote,
+          line: line.num
+        })
+      }
       currentLineText = temp + currentLineText
 
       let replacedText = `console.${text}(${currentLineText})`.replace(/^(.*)$/, `${indent}$1`) // 在替换字符串中添加缩进
@@ -217,15 +220,19 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
 
     const index = marks.indexOf(quotationMarks)
     const quote = index === 0 ? "'" : index === 1 ? '"' : '`'
-    // 开始位置增加的字符串
-    let temp = textHandle({
-      startAddStr,
-      needFileName,
-      needLineNumber,
-      fileName,
-      quote,
-      line: insertLine
-    })
+
+    let temp = ''
+    if (text === 'log') {
+      // 开始位置增加的字符串
+      temp = textHandle({
+        startAddStr,
+        needFileName,
+        needLineNumber,
+        fileName,
+        quote,
+        line: insertLine
+      })
+    }
 
     if (needOutputText) {
       strArr = strArr.flatMap(i => [quote + i + ' ->' + quote, i])
@@ -335,16 +342,19 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
         const index = marks.indexOf(quotationMarks)
         const quote = index === 0 ? "'" : index === 1 ? '"' : '`'
 
-        // 开始位置增加的字符串
-        let temp = textHandle({
-          startAddStr,
-          needFileName,
-          needLineNumber,
-          fileName,
-          quote,
-          line: insertLine + lineIndex, // 排序后行号计算正确
-          selectText: needOutputText ? line.text : ''
-        })
+        let temp = ''
+        if (text === 'log') {
+          // 开始位置增加的字符串
+          temp = textHandle({
+            startAddStr,
+            needFileName,
+            needLineNumber,
+            fileName,
+            quote,
+            line: insertLine + lineIndex, // 排序后行号计算正确
+            selectText: needOutputText ? line.text : ''
+          })
+        }
 
         let insertLineText = `${preIndent}console.${text}(${temp + line.text})` // 要插入的文本
 
@@ -584,7 +594,7 @@ class AutoCompletionItemProvider {
  * @return {Boolean}
  */
 const allowLog = (extname, document, position) => {
-  const checkExtReg = /\.(html|vue)$/ // 需要判断 script 标签的文件
+  const checkExtReg = /\.(html|vue|svelte)$/ // 需要判断 script 标签的文件
 
   // 需要判断 script 位置
   if (checkExtReg.test(extname)) {
