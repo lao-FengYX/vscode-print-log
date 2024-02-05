@@ -57,6 +57,9 @@ vscode.workspace.onDidChangeConfiguration(() => {
   tabSize = getConfig('editor').get('tabSize')
 })
 
+/**
+ * 是否是指令触发的 consoleHandle
+ */
 let commandTrigger = false
 
 /**
@@ -97,7 +100,6 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
         } else if (currentLineText.startsWith(text)) {
           currentLineText = currentLineText.replace(text, '')
         }
-        commandTrigger = false
       }
 
       let temp = ''
@@ -129,6 +131,8 @@ const consoleHandle = (activeEditor, text = 'log', lineArr) => {
         }
       })
       .then(success => {
+        commandTrigger = false
+
         if (success && isMove) {
           moveTheCursor({
             activeEditor,
