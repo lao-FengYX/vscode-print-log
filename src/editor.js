@@ -19,7 +19,9 @@ const {
   findBackticksLineNum,
   textHandle,
   findDropLine,
-  findTernaryLine
+  findTernaryLine,
+  findQuoteLine,
+  getNotCommentText
 } = require('./public')
 
 // 获取用户的所有配置
@@ -165,7 +167,6 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
     const max = document.lineCount
     const maxLine = Math.max(...lineArr.map(i => i.num))
     const currentLine = document.lineAt(maxLine)
-    const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
     const fileName = path.basename(document.uri.fsPath)
 
     // 得到允许打印的值
@@ -174,11 +175,7 @@ const selectHandle = (activeEditor, text = 'log', strArr, lineArr) => {
       .map(line => line.text)
 
     let currentText = currentLine.text?.trimEnd() // 获取文本
-    if (commentReg.test(currentText)) {
-      // 截取除了注释外的所有字符
-      let normalText = currentText.slice(0, currentText.search(commentReg)).trimEnd() // 获取文本
-      currentText = normalText.trim() === '' ? currentText : normalText
-    }
+    currentText = getNotCommentText(currentText)
 
     let nextLine = document.lineAt(maxLine + 1 >= max ? max - 1 : maxLine + 1)
     let nextLineRange = nextLine.range // 获取移动光标范围
@@ -293,14 +290,9 @@ const separateLineHandle = (activeEditor, text = 'log', strArr, lineArr) => {
         }
 
         const currentLine = document.lineAt(line.num)
-        const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
 
         let currentText = currentLine.text?.trimEnd() // 获取文本
-        if (commentReg.test(currentText)) {
-          // 截取除了注释外的所有字符
-          let normalText = currentText.slice(0, currentText.search(commentReg)).trimEnd() // 获取文本
-          currentText = normalText.trim() === '' ? currentText : normalText
-        }
+        currentText = getNotCommentText(currentText)
 
         let nextLine = document.lineAt(line.num + 1 >= max ? max - 1 : line.num + 1)
         let nextLineRange = nextLine.range // 获取移动光标范围
@@ -419,30 +411,28 @@ const loopFind = ({
   strArr,
   ternary = false
 }) => {
+  currentText = getNotCommentText(currentText)
+
   const objReg = /=\s*{$/g // 如果是对象结尾
   const classReg = /class\s(.*)\s*{$/g // 如果是class
   const arrReg = /=\s*\[$/g // 数组结尾
-  const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
-
-  if (commentReg.test(currentText)) {
-    // 截取除了注释外的所有字符
-    let normalText = currentText.slice(0, currentText.search(commentReg)).trimEnd() // 获取文本
-    currentText = normalText.trim() === '' ? currentText : normalText
-  }
-
   let objResult = objReg.test(currentText) || classReg.test(currentText)
   let arrResult = arrReg.test(currentText)
 
   const funcReg = /\((.*)\)\s*(\:.*)?(=>\s*)?{$|=>\s*{$/g // 如果是以函数结尾 匹配当前行缩进
   const bracketReg = /\(.*$/g // 如果是括号结尾的
-
   let funcResult = funcReg.test(currentText)
   let braketResult = bracketReg.test(currentText)
+
   let judgment = false // 是否需要进一步判断缩进
   let judgmentNum = 0 // 0是包含左侧内容 1是不包含
 
   const dropReg = /^(\?)?\./ // 匹配 . 开始或者 ?. 开始
   const ternaryReg = /^\?(?!\.)|^:/ // 匹配 三目
+
+  const quoteReg = /(,|;)$|(.*):(.*)$/ // 匹配对象里面的内容
+  let previousText = line.num - 1 >= 0 ? document.lineAt(line.num - 1).text : currentText
+  previousText = getNotCommentText(previousText)
 
   let lineNum
 
@@ -506,6 +496,14 @@ const loopFind = ({
     } else {
       lineNum = getNotContainLineNum(document, lineNum) // 判断Promise返回
       judgmentNum = 1
+    }
+  } else if (quoteReg.test(previousText) || quoteReg.test(currentText)) {
+    line.num = findQuoteLine(document, line.num - 1)
+    lineNum = getCloseBracketLine(document, line.num, '(') // 获取结束括号的行号
+    if (lineNum === line.num) {
+      // 如果不是函数参数解构的话
+      // 返回原始行号
+      lineNum = line.num + 1
     }
   }
 

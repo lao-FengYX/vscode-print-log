@@ -170,7 +170,7 @@ const getBracketNum = (text, bracket) => {
 const getNotContainLineNum = (document, num) => {
   const temp = num
   const thenReg = /\.(then|catch|finally)/
-  const fnEndReg = /\((.*)\)\s*(=>\s*)?{$|=>\s*{$/
+  const fnEndReg = /\((.*)\)\s*(\:.*)?(=>\s*)?{$|=>\s*{$/
 
   let notFirstLine = false // 如果当前不是第一行
 
@@ -349,14 +349,62 @@ const findTernaryLine = (document, num) => {
       colonNum++
     }
     if (askNum === colonNum) {
-      let nextText = document.lineAt(num + 1).text.trim()
-      if (!askReg.test(nextText) && !colonReg.test(nextText) && !funcReg.test(nextText)) {
+      let previousText = document.lineAt(num + 1).text.trim()
+      if (
+        !askReg.test(previousText) &&
+        !colonReg.test(previousText) &&
+        !funcReg.test(previousText)
+      ) {
         return num - 1
       }
     }
     num++
   }
   return line
+}
+
+/**
+ * @author: WR
+ * @Date: 2024-2-5 10:44:45
+ * @description: 查找 , 或 ; 结尾的行号
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ * @return {Number}
+ */
+const findQuoteLine = (document, num) => {
+  const quoteReg = /(,|;)$|(.*):(.*)$|(.*)=(.*)$/
+
+  while (num >= 0) {
+    // 对象里前一行文本肯定是有逗号
+    let text = document.lineAt(num).text.trim()
+    text = getNotCommentText(text)
+    // 匹配到开始位置
+    let previousText = document.lineAt(num - 1).text.trim()
+    previousText = getNotCommentText(previousText)
+
+    if (quoteReg.test(text) && !quoteReg.test(previousText)) {
+      return num
+    }
+
+    num--
+  }
+}
+
+/**
+ * @author: WR
+ * @Date: 2024-2-5 10:53:45
+ * @description: 得到不含注释的文本
+ * @param {String} text
+ * @returns {String} 不含注释的文本
+ */
+const getNotCommentText = text => {
+  const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
+  if (commentReg.test(text)) {
+    // 截取除了注释外的所有字符
+    let normalText = text.slice(0, text.search(commentReg)).trimEnd() // 获取文本
+    text = normalText.trim() === '' ? text : normalText
+  }
+  return text
 }
 
 module.exports = {
@@ -371,5 +419,7 @@ module.exports = {
   findBackticksLineNum,
   textHandle,
   findDropLine,
-  findTernaryLine
+  findTernaryLine,
+  findQuoteLine,
+  getNotCommentText
 }
