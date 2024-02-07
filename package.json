@@ -2,7 +2,7 @@
   "name": "print-log",
   "displayName": "print-log",
   "description": "javascript typescript 快速打印",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "icon": "./public/img/log.png",
   "author": "Lao Feng",
   "publisher": "LaoFeng",
