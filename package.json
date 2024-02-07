@@ -200,7 +200,7 @@
         },
         "print-log.output.moveTheCursor": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "%output.move the cursor.tip%"
         },
         "print-log.output.separateLine": {

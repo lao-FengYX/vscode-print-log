@@ -12,14 +12,14 @@ const projectName = 'print-log'
 
 /**
  * @typedef {Object} MoveType
- * @property {vscode.activeEditor} activeEditor
+ * @property {vscode.TextEditor} activeEditor
  * @property {vscode.Range} currentLineRange
  * @property {String} text 文本
  * @property {?Number} offset 光标偏移距离
  */
 /**
  * @typedef {Object} MovesType
- * @property {vscode.activeEditor} activeEditor
+ * @property {vscode.TextEditor} activeEditor
  * @property {vscode.Selection[]} selections
  * @property {?Number} offset 光标偏移距离
  * @property {?Boolean} additional 光标错误 额外处理
@@ -28,7 +28,7 @@ const projectName = 'print-log'
  * @author: WR
  * @Date: 2023-10-11 18:25:10
  * @description: 移动光标
- * @param {MoveType|MovesType} obj
+ * @param {MoveType & MovesType} obj
  * @return {*}
  */
 const moveTheCursor = ({
@@ -43,14 +43,15 @@ const moveTheCursor = ({
     const newPosition = currentLineRange.start.translate(0, text.length - offset) // 新的光标位置
     const newSelection = new vscode.Selection(newPosition, newPosition) // 创建新的选区
     activeEditor.selection = newSelection // 设置新的选区
-    // activeEditor.revealRange(newSelection, vscode.TextEditorRevealType.Default) // 滚动编辑器以显示新的选区
+
+    scrollView(activeEditor, newSelection) // 滚动编辑器以显示新的选区
   } else {
     const document = activeEditor.document
     let positions = [] // 更新位置
     selections.forEach((selection, index) => {
       // 一旦插入行之后，光标位置会错误，所以需要额外处理
       if (additional) {
-        selection.active.c += index
+        selection.active.line += index
       }
       const current = document.lineAt(selection.active)
       const range = current.range
@@ -61,8 +62,19 @@ const moveTheCursor = ({
       positions.push(new vscode.Selection(newPosition, newPosition))
     })
     activeEditor.selections = positions
+
+    scrollView(activeEditor, activeEditor.selection)
   }
 }
+
+/**
+ * 滚动视图到适当位置
+ * @param {vscode.TextEditor} activeEditor
+ * @param {vscode.Range} range
+ * @returns {*}
+ */
+const scrollView = (activeEditor, range) =>
+  activeEditor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport)
 
 /**
  * @author: WR
@@ -365,33 +377,6 @@ const findTernaryLine = (document, num) => {
 
 /**
  * @author: WR
- * @Date: 2024-2-5 10:44:45
- * @description: 查找 , 或 ; 结尾的行号
- * @param {vscode.TextDocument} document
- * @param {Number} num
- * @return {Number}
- */
-const findQuoteLine = (document, num) => {
-  const quoteReg = /(,|;)$|(.*):(.*)$|(.*)=(.*)$/
-
-  while (num >= 0) {
-    // 对象里前一行文本肯定是有逗号
-    let text = document.lineAt(num).text.trim()
-    text = getNotCommentText(text)
-    // 匹配到开始位置
-    let previousText = document.lineAt(num - 1).text.trim()
-    previousText = getNotCommentText(previousText)
-
-    if (quoteReg.test(text) && !quoteReg.test(previousText)) {
-      return num
-    }
-
-    num--
-  }
-}
-
-/**
- * @author: WR
  * @Date: 2024-2-5 10:53:45
  * @description: 得到不含注释的文本
  * @param {String} text
@@ -407,6 +392,29 @@ const getNotCommentText = text => {
   return text
 }
 
+/**
+ * 找函数解构的参数打印位置
+ * @param {vscode.TextDocument} document
+ * @param {Number} num
+ */
+const findStartLine = (document, num) => {
+  let startLine
+  while (num >= 0) {
+    let text = getNotCommentText(document.lineAt(num).text)
+    // 不要 }, 结尾
+    if (/\}\s*,$/.test(text)) {
+      return
+    }
+    // 找到参数解构行
+    if (/\(.*\{$/.test(text)) {
+      startLine = num
+      break
+    }
+    num--
+  }
+  return startLine
+}
+
 module.exports = {
   moveTheCursor,
   getAllConsole,
@@ -420,6 +428,6 @@ module.exports = {
   textHandle,
   findDropLine,
   findTernaryLine,
-  findQuoteLine,
-  getNotCommentText
+  getNotCommentText,
+  findStartLine
 }

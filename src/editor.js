@@ -20,8 +20,8 @@ const {
   textHandle,
   findDropLine,
   findTernaryLine,
-  findQuoteLine,
-  getNotCommentText
+  getNotCommentText,
+  findStartLine
 } = require('./public')
 
 // 获取用户的所有配置
@@ -430,7 +430,7 @@ const loopFind = ({
   const dropReg = /^(\?)?\./ // 匹配 . 开始或者 ?. 开始
   const ternaryReg = /^\?(?!\.)|^:/ // 匹配 三目
 
-  const quoteReg = /(,|;)$|(.*):(.*)$/ // 匹配对象里面的内容
+  const quoteReg = /(,|;)$/ // 匹配对象里面的内容
   let previousText = line.num - 1 >= 0 ? document.lineAt(line.num - 1).text : currentText
   previousText = getNotCommentText(previousText)
 
@@ -498,12 +498,11 @@ const loopFind = ({
       judgmentNum = 1
     }
   } else if (quoteReg.test(previousText) || quoteReg.test(currentText)) {
-    line.num = findQuoteLine(document, line.num - 1)
-    lineNum = getCloseBracketLine(document, line.num, '(') // 获取结束括号的行号
-    if (lineNum === line.num) {
-      // 如果不是函数参数解构的话
-      // 返回原始行号
-      lineNum = line.num + 1
+    let num = findStartLine(document, line.num)
+    if (num) {
+      lineNum = getCloseBracketLine(document, num, '(')
+      const nextText = getNotCommentText(document.lineAt(lineNum + 1).text).trim()
+      lineNum = /^(=>\s*)?\{$/.test(nextText) ? lineNum + 1 : lineNum
     }
   }
 
