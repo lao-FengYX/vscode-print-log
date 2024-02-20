@@ -399,10 +399,11 @@ const getNotCommentText = text => {
  */
 const findStartLine = (document, num) => {
   let startLine
+  let varReg = /^(var|let|const)\s+(.*?),/
   while (num >= 0) {
     let text = getNotCommentText(document.lineAt(num).text)
     // 不要 }, 结尾
-    if (/\}\s*,$/.test(text)) {
+    if (/\}\s*,$/.test(text) || text.trim().match(varReg)) {
       return
     }
     // 找到参数解构行
