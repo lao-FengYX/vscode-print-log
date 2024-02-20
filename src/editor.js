@@ -430,7 +430,7 @@ const loopFind = ({
   const dropReg = /^(\?)?\./ // 匹配 . 开始或者 ?. 开始
   const ternaryReg = /^\?(?!\.)|^:/ // 匹配 三目
 
-  const quoteReg = /(,|;)$/ // 匹配对象里面的内容
+  const quoteReg = /,$/ // 匹配对象里面的内容
   let previousText = line.num - 1 >= 0 ? document.lineAt(line.num - 1).text : currentText
   previousText = getNotCommentText(previousText)
 
