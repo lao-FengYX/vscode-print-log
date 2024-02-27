@@ -114,48 +114,21 @@ const registerRemoveAllEmptyLine = context => {
     if (!editor) return
     try {
       const document = editor.document
-      const emptyLineReg = /^\s*$/ // 匹配空行
-      let waitArr = []
-      let lineNum = 1
-      let boo = true // 开关
-
-      while (lineNum < document.lineCount) {
-        let line = document.lineAt(lineNum) // 当前行
-        let range = line.range // 当前行的范围
-        let prevLine = document.lineAt(lineNum - 1) // 上一行
-        let prevRange = prevLine.range // 上一行的范围
-        let prevText = prevLine.text
-        let text = line.text
-
-        // 如果上一行是开始行 并且第一行不是空
-        if (lineNum - 1 === 0 && prevText.trim() !== '') {
-          boo = false
-        }
-
-        // 如果上一行是空 并且下一行不是空
-        if (prevText.trim() === '' && text.trim() !== '' && boo) {
-          if (emptyLineReg.test(prevText)) {
-            waitArr.push(new vscode.Range(prevRange.start, range.start))
-            boo = false
-          }
-        }
-
-        if (emptyLineReg.test(text)) {
-          waitArr.push(
-            new vscode.Range(prevText.trim() === '' ? prevRange.start : prevRange.end, range.end)
-          )
-        }
-        lineNum++
-      }
-
+      const resourceLength = document.lineCount
+      let text = document.getText()
+      text = text.replace(/^\s*[\r\n]/gm, '') // 使用正则表达式替换空行
       editor
-        .edit(edit => {
-          waitArr.forEach(range => {
-            edit.delete(range)
-          })
+        .edit(editor => {
+          const documentStart = new vscode.Position(0, 0)
+          const documentEnd = document.lineAt(document.lineCount - 1).range.end
+          editor.replace(new vscode.Range(documentStart, documentEnd), text)
         })
-        .then(() => {
-          vscode.window.showInformationMessage(`remove ${waitArr.length} emptyLine ✅`)
+        .then(success => {
+          if (success) {
+            vscode.window.showInformationMessage(
+              `remove ${resourceLength - document.lineCount} emptyLine success ✅`
+            )
+          }
         })
     } catch (error) {
       vscode.window.showErrorMessage(`remove emptyLine error ❌`)
