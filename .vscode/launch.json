@@ -3,20 +3,34 @@
 // Hover to view descriptions of existing attributes.
 // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Run Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
 				"--disable-extensions",
-				"--extensionDevelopmentPath=${workspaceFolder}"
+				"--extensionDevelopmentPath=${workspaceRoot}"
 			],
-			"outFiles": [
-				"${workspaceFolder}/dist/**/*.js"
-			],
-			"preLaunchTask": "${defaultBuildTask}"
-		}
-	]
+      "sourceMaps": true,
+      "outFiles": ["${workspaceRoot}/dist/src/**/*.js"],
+      "preLaunchTask": "npm: pretest"
+    },
+    {
+      "name": "Test Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceRoot}",
+        "--extensionTestsPath=${workspaceRoot}/dist/test/suite"
+      ],
+      "sourceMaps": true,
+      "outFiles": ["${workspaceRoot}/dist/src/**/*.js"],
+      "preLaunchTask": "npm: pretest"
+    }
+  ]
 }

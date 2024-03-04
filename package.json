@@ -4,7 +4,7 @@
   "description": "快速打印",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.86.0"
+    "vscode": "^1.75.0"
   },
   "categories": [
     "Other"
@@ -20,30 +20,23 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "yarn run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "vscode:prepublish": "yarn run build",
+    "build": "node esbuild.mjs",
+    "package": "npx vsce package",
+    "pretest": "tsc --project tsconfig.test.json",
     "lint": "eslint src --ext ts",
-    "test": "vscode-test"
-  },
-  "dependencies": {
-    "typescript": "^5.3.2"
+    "test": "npm run pretest && node ./dist/test/extension.test.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.86.0",
+    "typescript": "^5.3.2",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.75.0",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
-    "eslint": "^8.54.0",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.8"
+    "@vscode/test-electron": "^2.3.8",
+    "esbuild": "^0.20.1",
+    "eslint": "^8.54.0"
   }
 }
