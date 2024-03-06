@@ -1,0 +1,15 @@
+{
+  "clean.format.tip": "Format the current document after performing delete or empty operations (applicable to all delete or empty operations)",
+  "output.log.tip": "Adding some labels before the output logs makes it easier to find your logs",
+  "output.select.label": "Select quotation marks",
+  "output.select.single.tip": "Wrap custom content with single quotation marks",
+  "output.select.double.tip": "Wrap custom content with double quotation marks",
+  "output.select.backticks.tip": "Wrap custom content with back quotes",
+  "output.semicolon.tip": "semicolon is required",
+  "output.needFileName.tip": "Do you need to print the file name (ps: after the customized content)",
+  "output.needLineNumber.tip": "Do you need to print the line number (ps: after the file name)",
+  "output.move the cursor.tip": "Move the cursor to the appropriate position after triggering the command",
+  "output.separate line.tip": "Is the selection printed on a separate line",
+  "output.needSelectedText.tip": "Do you want to output the selected text",
+  "clean.delete comments and empty line.tip": "Delete empty line after remove all comments"
+}

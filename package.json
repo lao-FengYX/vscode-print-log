@@ -1,23 +1,220 @@
 {
-  "name": "ts-print-log",
-  "displayName": "ts-print-log",
-  "description": "快速打印",
-  "version": "0.0.1",
+  "name": "print-log",
+  "displayName": "print-log",
+  "description": "javascript typescript 快速打印",
+  "version": "0.1.5",
+  "icon": "./public/img/log.png",
+  "author": "Lao Feng",
+  "publisher": "LaoFeng",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lao-FengYX/vscode-print-log"
+  },
+  "bugs": {
+    "email": "laofyx@163.com",
+    "url": "https://github.com/lao-FengYX/vscode-print-log/issues"
+  },
   "engines": {
     "vscode": "^1.75.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "keywords": [
+    "javascript",
+    "typescript",
+    "console",
+    "log",
+    "print",
+    "打印",
+    "快速打印"
+  ],
+  "activationEvents": [
+    "onLanguage:html",
+    "onLanguage:vue",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "ts-print-log.helloWorld",
-        "title": "Hello World"
+        "command": "print.log",
+        "title": "Print Log"
+      },
+      {
+        "command": "print.table",
+        "title": "Print Table"
+      },
+      {
+        "command": "print.dir",
+        "title": "Print Dir"
+      },
+      {
+        "command": "print.warn",
+        "title": "Print Warn"
+      },
+      {
+        "command": "print.error",
+        "title": "Print Error"
+      },
+      {
+        "command": "print.cleanConsole",
+        "title": "Print CleanConsole"
+      },
+      {
+        "command": "print.removeAllComment",
+        "title": "Print RemoveAllComment"
+      },
+      {
+        "command": "print.removeAllEmptyLine",
+        "title": "Print RemoveAllEmptyLine"
       }
-    ]
+    ],
+    "keybindings": [
+      {
+        "command": "print.log",
+        "key": "ctrl+alt+l",
+        "mac": "ctrl+alt+l",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "print.table",
+        "key": "ctrl+alt+t",
+        "mac": "ctrl+alt+t",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "print.dir",
+        "key": "ctrl+alt+d",
+        "mac": "ctrl+alt+d",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "print/tools",
+          "when": "resourceExtname =~ /\\.([c|m]?[t|j]s|[t|j]sx|vue|html)$/",
+          "group": "navigation"
+        }
+      ],
+      "print/tools": [
+        {
+          "command": "print.log",
+          "when": "editorTextFocus",
+          "group": "print-menu@1"
+        },
+        {
+          "command": "print.table",
+          "when": "editorTextFocus",
+          "group": "print-menu@2"
+        },
+        {
+          "command": "print.dir",
+          "when": "editorTextFocus",
+          "group": "print-menu@3"
+        },
+        {
+          "command": "print.warn",
+          "when": "editorTextFocus",
+          "group": "print-menu@4"
+        },
+        {
+          "command": "print.error",
+          "when": "editorTextFocus",
+          "group": "print-menu@5"
+        },
+        {
+          "command": "print.cleanConsole",
+          "when": "editorTextFocus",
+          "group": "print-menu@6"
+        },
+        {
+          "command": "print.removeAllComment",
+          "when": "editorTextFocus",
+          "group": "print-menu@7"
+        },
+        {
+          "command": "print.removeAllEmptyLine",
+          "when": "editorTextFocus",
+          "group": "print-menu@8"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "print/tools",
+        "label": "Print"
+      }
+    ],
+    "configuration": {
+      "title": "print-log",
+      "properties": {
+        "print-log.clean.format": {
+          "type": "boolean",
+          "default": true,
+          "description": "%clean.format.tip%"
+        },
+        "print-log.output.log": {
+          "type": "string",
+          "default": "",
+          "description": "%output.log.tip%"
+        },
+        "print-log.output.selectQuotationMarks": {
+          "type": "string",
+          "default": "Single Quote",
+          "enum": [
+            "Single Quote",
+            "Double Quotes",
+            "Backticks"
+          ],
+          "description": "%output.select.label%",
+          "enumDescriptions": [
+            "%output.select.single.tip%",
+            "%output.select.double.tip%",
+            "%output.select.backticks.tip%"
+          ]
+        },
+        "print-log.output.semicolonIsRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "%output.semicolon.tip%"
+        },
+        "print-log.output.needFileName": {
+          "type": "boolean",
+          "default": false,
+          "description": "%output.needFileName.tip%"
+        },
+        "print-log.output.needLineNumber": {
+          "type": "boolean",
+          "default": false,
+          "description": "%output.needLineNumber.tip%"
+        },
+        "print-log.output.needSelectedText": {
+          "type": "boolean",
+          "default": false,
+          "description": "%output.needSelectedText.tip%"
+        },
+        "print-log.output.moveTheCursor": {
+          "type": "boolean",
+          "default": true,
+          "description": "%output.move the cursor.tip%"
+        },
+        "print-log.output.separateLine": {
+          "type": "boolean",
+          "default": true,
+          "description": "%output.separate line.tip%"
+        },
+        "print-log.clean.deleteCommentsAndEmptyLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "%clean.delete comments and empty line.tip%"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run build",
@@ -38,5 +235,6 @@
     "@vscode/test-electron": "^2.3.8",
     "esbuild": "^0.20.1",
     "eslint": "^8.54.0"
-  }
+  },
+  "license": "MIT"
 }

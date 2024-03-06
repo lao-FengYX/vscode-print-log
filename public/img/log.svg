@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style type="text/css">
+      @import url('https://fonts.googleapis.com/css?family=Noto+Sans+SC:100,300,400,500,700,900')
+    </style>
+    <linearGradient id="linear" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="orange" />
+      <stop offset="100%" stop-color="red" />
+    </linearGradient>
+  </defs>
+
+  <text x="30" y="78" font-family="Noto Sans SC" font-size="40" fill="url(#linear)">log</text>
+  <text x="32" y="78" font-family="Noto Sans SC" font-size="40" fill="url(#linear)">log</text>
+  <text x="34" y="78" font-family="Noto Sans SC" font-size="40" fill="url(#linear)">log</text>
+  <line x1="50" y1="50" x2="47" y2="46" stroke="url(#linear)" stroke-width="2" />
+  <line x1="61" y1="50" x2="64" y2="46" stroke="url(#linear)" stroke-width="2" />
+</svg>

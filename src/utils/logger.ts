@@ -6,7 +6,7 @@ export default class Logger {
   /** 输出通道 */
   private out: LogOutputChannel
   constructor() {
-    this.out = window.createOutputChannel('ts-print-log', {
+    this.out = window.createOutputChannel('print-log', {
       log: true
     })
   }
@@ -40,14 +40,14 @@ export default class Logger {
   /**
    * 显示日志通道信息
    */
-  static show () {
+  static show() {
     Logger.getInstance().out.show()
   }
 
   /**
    * 清空日志通道信息
    */
-  static clear () {
+  static clear() {
     Logger.getInstance().out.clear()
   }
 }
