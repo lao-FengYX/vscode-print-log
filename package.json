@@ -97,7 +97,7 @@
       "editor/context": [
         {
           "submenu": "print/tools",
-          "when": "resourceExtname =~ /\\.([c|m]?[t|j]s|[t|j]sx|vue|html)$/",
+          "when": "resourceExtname =~ /\\.([c|m]?[t|j]s|[t|j]sx|vue|html|svelte)$/",
           "group": "navigation"
         }
       ],

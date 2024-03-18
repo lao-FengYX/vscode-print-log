@@ -1,13 +1,14 @@
 import * as vscode from 'vscode'
-import { Fixed, getConfig, getTextEditor } from '.'
+import { Extension, getConfig, getTextEditor } from '.'
+import Logger from './logger'
 
-let format = getConfig('clean.format')
-let removeEmptyLine = getConfig('clean.deleteCommentsAndEmptyLine')
+let format = getConfig('clear.format')
+let removeEmptyLine = getConfig('clear.deleteCommentsAndEmptyLine')
 
 vscode.workspace.onDidChangeConfiguration((e) => {
-  if (e.affectsConfiguration(Fixed.name)) {
-    format = getConfig('clean.format')
-    removeEmptyLine = getConfig('clean.deleteCommentsAndEmptyLine')
+  if (e.affectsConfiguration(Extension.name)) {
+    format = getConfig('clear.format')
+    removeEmptyLine = getConfig('clear.deleteCommentsAndEmptyLine')
   }
 })
 
@@ -22,12 +23,14 @@ export const removeAllConsole = () =>
     }
     const document = editor.document
     const resourceLength = document.lineCount
-    let text = document.getText()
+
     const consoleReg =
       /((window|global|globalThis)\.)?console\.(log|debug|info|warn|error|assert|clear|dir|dirxml|trace|table|group|groupCollapsed|groupEnd|time|timeEnd|timeLog|timeStamp|profile|profileEnd|count|countReset)\((.*)\);?/g
+    let text = document.getText()
+    let count = 0
 
     try {
-      let count = 0
+      const timeStamp = performance.now()
       text = text.replace(consoleReg, () => {
         count++
         return ''
@@ -40,9 +43,11 @@ export const removeAllConsole = () =>
         })
         .then((success) => {
           if (success) {
-            vscode.window.showInformationMessage(
-              `remove ${count} console success ✅`
+            Logger.info(
+              `remove console time ${Math.ceil(performance.now() - timeStamp)}`
             )
+
+            vscode.window.showInformationMessage(`remove ${count} console ✅`)
 
             format // 触发vscode的格式化
               ? vscode.commands.executeCommand('editor.action.formatDocument')
@@ -68,7 +73,9 @@ export const removeAllComment = () =>
     const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
     let text = document.getText()
     let count = 0
+
     try {
+      const timeStamp = performance.now()
       text = text.replace(commentReg, () => {
         count++
         return ''
@@ -82,6 +89,10 @@ export const removeAllComment = () =>
         })
         .then((success) => {
           if (success) {
+            Logger.info(
+              `remove comments time ${Math.ceil(performance.now() - timeStamp)}`
+            )
+
             vscode.window.showInformationMessage(`remove ${count} comments ✅`)
 
             format
@@ -112,6 +123,7 @@ export const removeAllEmptyLine = () =>
     const emptyReg = /^\s*[\r\n]/gm
     let text = document.getText()
     try {
+      const timeStamp = performance.now()
       text = text.replace(emptyReg, '')
 
       editor
@@ -122,10 +134,14 @@ export const removeAllEmptyLine = () =>
         })
         .then((success) => {
           if (success) {
+            Logger.info(
+              `remove emptyLine time ${Math.ceil(
+                performance.now() - timeStamp
+              )}`
+            )
+
             vscode.window.showInformationMessage(
-              `remove ${
-                resourceLength - document.lineCount
-              } emptyLine success ✅`
+              `remove ${resourceLength - document.lineCount} emptyLine ✅`
             )
           }
         })

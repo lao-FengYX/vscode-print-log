@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
-import { Config } from '../types'
+import type { Config, ExtractKey, KeyPath } from '../types'
 
-export enum Fixed {
+export enum Extension {
   name = 'print-log'
 }
 
@@ -13,7 +13,7 @@ export const getTextEditor = () => vscode.window.activeTextEditor
 /**
  * 获取配置
  */
-export const getConfig = <T extends keyof Config>(
+export const getConfig = <T extends KeyPath<Config>>(
   config: T
-): Readonly<Config[T]> =>
-  vscode.workspace.getConfiguration(Fixed.name).get(config) as Config[T]
+): ExtractKey<Config, T> | undefined =>
+  vscode.workspace.getConfiguration(Extension.name).get(config)
