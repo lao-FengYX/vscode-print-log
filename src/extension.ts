@@ -5,7 +5,9 @@ import {
   removeAllConsole,
   removeAllEmptyLine
 } from './utils/remove'
-import { AutoCompletionItemProvider } from './utils/completionItem'
+import { allowLog, AutoCompletionItemProvider } from './utils/completionItem'
+import { consoleHandler } from './utils/print'
+import path from 'path'
 
 const language = [
   'html',
@@ -25,10 +27,11 @@ export function activate(context: ExtensionContext) {
         return
       }
 
-      handlePrint(editor, command)
+      entranceProcess(editor, command)
     })
 
     context.subscriptions.push(dispose)
+
     context.subscriptions.push(
       languages.registerCompletionItemProvider(
         language,
@@ -42,23 +45,21 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(removeAllEmptyLine())
 }
 
-const handlePrint = (editor: TextEditor, command: string) => {
+const entranceProcess = (editor: TextEditor, command: string) => {
   const selections = editor.selections
   const document = editor.document
-  const strArr: string[] = [] // 获取所有选择的内容
-  const lineArr: { num: number; text: string }[] = [] // 获取行号
+  const lineArr: { num: number; text: string }[] = []
 
   selections.forEach((selection) => {
     const words = document.getText(selection)
-    lineArr.push({ num: selection.active.line, text: words })
-    if (words !== '') {
-      strArr.push(words)
+    if (
+      allowLog(path.extname(document.fileName), document, selection.active.line)
+    ) {
+      lineArr.push({ num: selection.active.line, text: words })
     }
   })
 
-  if (strArr.length) {
-    
-  }
+  consoleHandler(editor, lineArr, command)
 }
 
 export function deactivate() {}

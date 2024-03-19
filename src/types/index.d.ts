@@ -45,6 +45,10 @@ export interface Config {
   }
 }
 
+export interface Identifier {
+  tabSize: number
+}
+
 /**
  * 提取键
  */

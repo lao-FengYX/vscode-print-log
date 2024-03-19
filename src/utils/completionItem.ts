@@ -73,10 +73,10 @@ export class AutoCompletionItemProvider implements CompletionItemProvider {
   }
 }
 
-const allowLog = (
+export const allowLog = (
   extname: string,
   document: TextDocument,
-  position: Position
+  position: Position | number
 ) => {
   const checkExtReg = /\.(html|vue|svelte)$/ // 需要判断 script 标签的文件
 

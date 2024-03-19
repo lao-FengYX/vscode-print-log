@@ -44,7 +44,7 @@ export const removeAllConsole = () =>
         .then((success) => {
           if (success) {
             Logger.info(
-              `remove console time ${Math.ceil(performance.now() - timeStamp)}`
+              `remove console time ${Math.ceil(performance.now() - timeStamp)}ms`
             )
 
             vscode.window.showInformationMessage(`remove ${count} console ✅`)
@@ -90,7 +90,7 @@ export const removeAllComment = () =>
         .then((success) => {
           if (success) {
             Logger.info(
-              `remove comments time ${Math.ceil(performance.now() - timeStamp)}`
+              `remove comments time ${Math.ceil(performance.now() - timeStamp)}ms`
             )
 
             vscode.window.showInformationMessage(`remove ${count} comments ✅`)
@@ -137,7 +137,7 @@ export const removeAllEmptyLine = () =>
             Logger.info(
               `remove emptyLine time ${Math.ceil(
                 performance.now() - timeStamp
-              )}`
+              )}ms`
             )
 
             vscode.window.showInformationMessage(
