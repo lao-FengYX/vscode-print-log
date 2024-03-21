@@ -1,13 +1,13 @@
+import path from 'path'
 import { commands, ExtensionContext, languages, TextEditor } from 'vscode'
 import { getTextEditor } from './utils'
+import { allowLog, AutoCompletionItemProvider } from './utils/completionItem'
+import { currentRowConsoleHandler, otherConsoleHandler } from './utils/print'
 import {
   removeAllComment,
   removeAllConsole,
   removeAllEmptyLine
 } from './utils/remove'
-import { allowLog, AutoCompletionItemProvider } from './utils/completionItem'
-import { consoleHandler } from './utils/print'
-import path from 'path'
 
 const language = [
   'html',
@@ -48,10 +48,15 @@ export function activate(context: ExtensionContext) {
 const entranceProcess = (editor: TextEditor, command: string) => {
   const selections = editor.selections
   const document = editor.document
-  const lineArr: { num: number; text: string }[] = []
+  let lineArr: { num: number; text: string }[] = []
+  let strArr: string[] = []
 
   selections.forEach((selection) => {
     const words = document.getText(selection)
+    if (words !== '') {
+      strArr.push(words)
+    }
+
     if (
       allowLog(path.extname(document.fileName), document, selection.active.line)
     ) {
@@ -59,7 +64,13 @@ const entranceProcess = (editor: TextEditor, command: string) => {
     }
   })
 
-  consoleHandler(editor, lineArr, command)
+  // 如果有选择的内容   找到应该输出的位置
+  // 否则打印当前行
+  ;(strArr.length ? otherConsoleHandler : currentRowConsoleHandler)(
+    editor,
+    lineArr,
+    command
+  )
 }
 
 export function deactivate() {}

@@ -42,7 +42,7 @@ When the command is triggered, if there is selected content, the selected conten
 
 - It is recommended to enable the `"files.insertFinalNewline": true,` configuration item, otherwise it will not be printed if the line to be printed is the last line
 
-- When you need to print a line if there is `str = text.trim()?. split('(') || ''` This kind of `(` and `)` are not equal, and the next line is another logical code is similar to the situation, it is recommended to print manually, otherwise if the current file is too large, it will be very performance-intensive
+- When there is a situation where the ` (` and `) ` are not equal in the line to be printed, and the next line is a similar logical code, it is recommended to manually print it, otherwise the printed line may be incorrect
 
 - When entering instructions to complete at the start position, if the code immediately following it is deleted, **it is recommended to separate the start and end positions with spaces when triggering the instruction**
 

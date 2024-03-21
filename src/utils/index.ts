@@ -1,4 +1,4 @@
-import { window, workspace } from 'vscode'
+import { window, workspace, TextDocument } from 'vscode'
 import type { Config, ExtractKey, Identifier, KeyPath } from '../types'
 
 export enum Extension {
@@ -12,6 +12,8 @@ export const getTextEditor = () => window.activeTextEditor
 
 /**
  * 获取配置
+ * @param config 需要取的配置名称
+ * @param identifier 从哪里取配置
  */
 export const getConfig = <T extends KeyPath<Config & Identifier>>(
   config: T,
@@ -23,6 +25,7 @@ export const getConfig = <T extends KeyPath<Config & Identifier>>(
 
 /**
  * 获取没有注释的文本
+ * @param text 需要删除注释的文本
  */
 export const getNotCommentText = (text: string) => {
   const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
@@ -31,5 +34,68 @@ export const getNotCommentText = (text: string) => {
     let normalText = text.slice(0, text.search(commentReg)).trimEnd() // 获取文本
     text = normalText.trim() === '' ? text : normalText
   }
-  return text
+  return text.trim()
+}
+
+type Braket = {
+  /**
+   * 开始的字符串正则
+   */
+  start: string
+  /**
+   * 结束的字符串正则
+   */
+  end: string
+}
+/**
+ * 找括号结束行
+ * @param num 开始行
+ * @param obj
+ * @param cb 判断条件回调
+ */
+export const findEndLine = (
+  document: TextDocument,
+  num: number,
+  obj: Braket,
+  cb = (start: number, end: number) => start === end
+) => {
+  let start = 0,
+    end = 0,
+    temp = num
+
+  while (num < document.lineCount) {
+    let text = getNotCommentText(document.lineAt(num).text)
+
+    const { startNum, endNum } = getBraketNum(text, {
+      start: obj.start,
+      end: obj.end
+    })
+    start += startNum
+    end += endNum
+
+    if (cb(start, end)) {
+      return num
+    }
+    num++
+  }
+  return temp
+}
+
+/**
+ * 拿到每一行括号数量
+ * @param text 待验证的字符串
+ */
+export const getBraketNum = (text: string, { start, end }: Braket) => {
+  let startNum = 0
+  let endNum = 0
+  const startReg = new RegExp(start, 'g')
+  const endReg = new RegExp(end, 'g')
+
+  while (startReg.exec(text)) {
+    startNum++
+  }
+  while (endReg.exec(text)) {
+    endNum++
+  }
+  return { startNum, endNum }
 }

@@ -16,7 +16,13 @@ import path from 'path'
  */
 let commandTrigger = false
 
-export const getCommandTrigger = () => commandTrigger
+export const useCommandTrigger = (): [boolean, (trigger: boolean) => any] => {
+  const setCommandTrigger = (trigger: boolean) => {
+    commandTrigger = trigger
+  }
+
+  return [commandTrigger, setCommandTrigger]
+}
 
 export class AutoCompletionItemProvider implements CompletionItemProvider {
   private command: string = '' // 完成指令
