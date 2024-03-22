@@ -1,5 +1,11 @@
 import { window, workspace, TextDocument } from 'vscode'
-import type { Config, ExtractKey, Identifier, KeyPath } from '../types'
+import type {
+  Config,
+  ExtractKey,
+  Identifier,
+  KeyPath,
+  BraketReg
+} from '../types'
 
 export enum Extension {
   name = 'print-log'
@@ -15,7 +21,14 @@ export const getTextEditor = () => window.activeTextEditor
  * @param config 需要取的配置名称
  * @param identifier 从哪里取配置
  */
-export const getConfig = <T extends KeyPath<Config & Identifier>>(
+export const getConfig: {
+  <T extends KeyPath<Config>>(config: T):
+    | ExtractKey<Config, T>
+    | undefined
+  <T extends KeyPath<Identifier>>(config: T, identifier: 'editor'):
+    | ExtractKey<Identifier, T>
+    | undefined
+} = <T extends KeyPath<Config & Identifier>>(
   config: T,
   identifier?: T extends keyof Identifier ? 'editor' : 'print-log'
 ): ExtractKey<Config & Identifier, T> | undefined =>
@@ -37,16 +50,6 @@ export const getNotCommentText = (text: string) => {
   return text.trim()
 }
 
-type Braket = {
-  /**
-   * 开始的字符串正则
-   */
-  start: string
-  /**
-   * 结束的字符串正则
-   */
-  end: string
-}
 /**
  * 找括号结束行
  * @param num 开始行
@@ -56,7 +59,7 @@ type Braket = {
 export const findEndLine = (
   document: TextDocument,
   num: number,
-  obj: Braket,
+  obj: BraketReg,
   cb = (start: number, end: number) => start === end
 ) => {
   let start = 0,
@@ -85,7 +88,7 @@ export const findEndLine = (
  * 拿到每一行括号数量
  * @param text 待验证的字符串
  */
-export const getBraketNum = (text: string, { start, end }: Braket) => {
+export const getBraketNum = (text: string, { start, end }: BraketReg) => {
   let startNum = 0
   let endNum = 0
   const startReg = new RegExp(start, 'g')

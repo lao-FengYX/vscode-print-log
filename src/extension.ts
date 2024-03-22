@@ -15,7 +15,8 @@ const language = [
   'typescript',
   'javascriptreact',
   'typescriptreact',
-  'vue'
+  'vue',
+  'svelte'
 ]
 
 export function activate(context: ExtensionContext) {

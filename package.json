@@ -201,17 +201,12 @@
         "print-log.output.moveTheCursor": {
           "type": "boolean",
           "default": true,
-          "description": "%output.move the cursor.tip%"
-        },
-        "print-log.output.separateLine": {
-          "type": "boolean",
-          "default": true,
-          "description": "%output.separate line.tip%"
+          "description": "%output.moveTheCursor.tip%"
         },
         "print-log.clean.deleteCommentsAndEmptyLine": {
           "type": "boolean",
           "default": false,
-          "description": "%clean.delete comments and empty line.tip%"
+          "description": "%clean.deleteCommentsAndEmptyLine.tip%"
         }
       }
     }

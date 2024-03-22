@@ -1,3 +1,6 @@
+/**
+ * 扩展配置
+ */
 export interface Config {
   clear: {
     /**
@@ -38,14 +41,16 @@ export interface Config {
      * 输出后移动光标
      */
     moveTheCursor: boolean
-    /**
-     * 输出内容是否独占一行
-     */
-    separateLine: boolean
   }
 }
 
+/**
+ * 编辑器配置
+ */
 export interface Identifier {
+  /**
+   * tab缩进
+   */
   tabSize: number
 }
 
@@ -77,3 +82,17 @@ export type ExtractKey<
   : K extends keyof T
   ? T[K]
   : never
+
+/**
+ * 查找括号类型正则
+ */
+export type BraketReg = {
+  /**
+   * 开始的字符串正则
+   */
+  start: string
+  /**
+   * 结束的字符串正则
+   */
+  end: string
+}
