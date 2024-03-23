@@ -343,14 +343,19 @@ const findCommaLine = (document: TextDocument, start: number) => {
   while (start >= 0) {
     const text = getNotCommentText(document.lineAt(start).text)
     const beforeText = getNotCommentText(document.lineAt(start - 1).text)
+    const currentTextTestRes = fnReg.test(text)
+    const beforeTextTestRes = fnReg.test(beforeText)
+
+    if (currentTextTestRes || beforeTextTestRes) {
+      return findEndLine(document, start - (currentTextTestRes ? 0 : 1), {
+        start: '\\(',
+        end: '\\)'
+      })
+    }
 
     if (!isVarFlag && (varReg.test(text) || varReg.test(beforeText))) {
       isVarFlag = true
       break
-    }
-
-    if (fnReg.test(text)) {
-      return findEndLine(document, start, { start: '\\(', end: '\\)' })
     }
 
     start--
