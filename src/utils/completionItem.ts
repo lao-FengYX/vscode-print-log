@@ -10,6 +10,7 @@ import {
   env
 } from 'vscode'
 import path from 'path'
+import { getNotCommentText } from '.'
 
 /**
  * 是否是指令触发的 consoleHandle
@@ -52,16 +53,17 @@ export class AutoCompletionItemProvider implements CompletionItemProvider {
           : 'Quickly print the current line'
       } (Print ${this.upperCommand})\n\nconsole.${this.command}(lineCode)`
     )
-    snippetCompletion.commitCharacters = this.command.split('')
-    snippetCompletion.preselect = true
     snippetCompletion.sortText = '0'
 
+    const arr = this.command
+      .split('')
+      .map((_, i) => this.command.slice(0, i + 1))
     const extname = path.extname(document.uri.fsPath) // 文件扩展名
-    let text = document.lineAt(position).text.trim()
+    let text = getNotCommentText(document.lineAt(position).text)
+
     if (
       allowLog(extname, document, position) &&
-      (text.endsWith(this.command.slice(0, 1)) ||
-        text.startsWith(this.command.slice(0, 1)))
+      arr.some((t) => text.endsWith(t) || text.startsWith(t))
     ) {
       return [snippetCompletion]
     }
