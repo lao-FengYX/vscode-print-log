@@ -36,8 +36,6 @@ When the command is triggered, if there is selected content, the selected conten
 
 <br>
 
-<img src="public/img/example2.gif" alt="select log" title="example2" width="70%">
-
 ### note
 
 - It is recommended to enable the `"files.insertFinalNewline": true,` configuration item, otherwise it will not be printed if the line to be printed is the last line

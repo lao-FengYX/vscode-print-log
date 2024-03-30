@@ -1,3 +1,4 @@
+import path from 'path'
 import {
   CompletionItem,
   CompletionItemKind,
@@ -9,7 +10,6 @@ import {
   TextDocument,
   env
 } from 'vscode'
-import path from 'path'
 import { getNotCommentText } from '.'
 
 /**

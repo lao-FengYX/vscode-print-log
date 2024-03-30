@@ -36,8 +36,6 @@
 
 <br>
 
-<img src="public/img/example2.gif" alt="select log" title="example2" width="70%">
-
 ### 注意
 
 - 建议开启 `"files.insertFinalNewline": true,` 配置项, 否则如果需要打印的行是最后一行 不会进行打印
