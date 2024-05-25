@@ -2,6 +2,7 @@ import { build } from 'esbuild'
 
 await build({
   entryPoints: ['./src/extension.ts'],
+  sourcemap: true,
   bundle: true,
   format: 'cjs',
   minify: true,

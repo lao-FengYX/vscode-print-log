@@ -180,7 +180,9 @@ export const otherConsoleHandler = (
       }
       insertText = `${indent + padIndent}console.${command}(${
         needOutputText + lineItem.text
-      })${document.eol === EndOfLine.CRLF ? '\r\n' : '\n'}`
+      })`
+      semicolon ? (insertText += ';') : null
+      insertText += document.eol === EndOfLine.CRLF ? '\r\n' : '\n'
 
       waitingInsertProcessing.push({
         insertText,
@@ -396,7 +398,10 @@ const moveTheCursor = (
     const currentRange = current.range
     const currentText = current.text.replace(/[\r\n]$/, '')
 
-    const newPosition = currentRange.start.translate(0, currentText.length - 1)
+    const newPosition = currentRange.start.translate(
+      0,
+      currentText.length - (!semicolon ? 1 : 2)
+    )
     positions.push(new Selection(newPosition, newPosition))
   })
 
