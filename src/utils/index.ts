@@ -47,6 +47,10 @@ export const getNotCommentText = (text: string) => {
     let normalText = text.slice(0, text.search(commentReg)).trimEnd() // 获取文本
     text = normalText.trim() === '' ? text : normalText
   }
+  // 去掉正则内容
+  if (text.includes('=')) {
+    text = text.replace(/\/.*\//, '')
+  }
   return text.trim()
 }
 

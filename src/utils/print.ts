@@ -260,7 +260,8 @@ const loopFind = (
   selectText: string,
   padIndent = ''
 ): { endLine: number; padIndent: string } => {
-  const fnReg = /\)\s*(:.*)?{$|=>\s*{$/
+  // 箭头函数可以省略括号所以先匹配
+  const fnReg = /=>\s*{$|\)\s*(:.*)?{$/
   const objReg = /\{$/
   const arrReg = /\[$/
   const barketReg = /\($/
@@ -273,7 +274,9 @@ const loopFind = (
   let endLine = line
 
   if (fnReg.test(lineText)) {
-    let strArr = lineText.split('(')
+    // 换成截取  split会忽略( 导致选择括号匹配错误
+    let pos = lineText.indexOf('(')
+    let strArr = [lineText.slice(0, pos), lineText.slice(pos + 1)]
     // 如果选择的是参数  不用继续往下找
     if (strArr.slice(1).some((t) => t.includes(selectText))) {
       endLine = line

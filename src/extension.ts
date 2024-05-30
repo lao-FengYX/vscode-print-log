@@ -65,9 +65,10 @@ const entranceProcess = (editor: TextEditor, command: string) => {
     }
   })
 
-  lineArr = [...new Set(lineArr.map((i) => i.num))].map(
-    (i) => lineArr.find((item) => item.num === i)!
-  )
+  // 不知道当初是怎么想的  先注掉
+  // lineArr = [...new Set(lineArr.map((i) => i.num))].map(
+  //   (i) => lineArr.find((item) => item.num === i)!
+  // )
 
   // 如果有选择的内容   找到应该输出的位置
   // 否则打印当前行
