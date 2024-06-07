@@ -178,9 +178,11 @@ export const otherConsoleHandler = (
           lineItem.text
         )
       }
-      insertText = `${indent + padIndent}console.${command}(${
-        needOutputText + lineItem.text
-      })`
+      insertText = `${
+        padIndent < 0
+          ? indent.slice(0, padIndent)
+          : indent.padEnd(padIndent, ' ')
+      }console.${command}(${needOutputText + lineItem.text})`
       semicolon ? (insertText += ';') : null
       insertText += document.eol === EndOfLine.CRLF ? '\r\n' : '\n'
 
@@ -189,6 +191,8 @@ export const otherConsoleHandler = (
         insertLine
       })
     })
+    // 对插入行进行排序  否则光标位置错误
+    waitingInsertProcessing.sort((a, b) => a.insertLine - b.insertLine)
 
     editor
       .edit((editBuilder) => {
@@ -236,7 +240,7 @@ const textHandler = (document: TextDocument, line: number, text: string) => {
     temp += `${temp !== '' ? '~ ' : ''}line: ${line + 1} `
   }
   if (needOutputText) {
-    temp += text !== '' ? (temp !== '' ? ' ~ ' : '') + text + ' ->' : ''
+    temp += text !== '' ? (temp !== '' ? '~ ' : '') + text + ' ->' : ''
   }
 
   temp = temp.trimEnd()
@@ -258,8 +262,8 @@ const loopFind = (
   lineText: string,
   line: number,
   selectText: string,
-  padIndent = ''
-): { endLine: number; padIndent: string } => {
+  padIndent = 0
+): { endLine: number; padIndent: number } => {
   // 箭头函数可以省略括号所以先匹配
   const fnReg = /=>\s*{$|\)\s*(:.*)?{$/
   const objReg = /\{$/
@@ -274,13 +278,11 @@ const loopFind = (
   let endLine = line
 
   if (fnReg.test(lineText)) {
-    // 换成截取  split会忽略( 导致选择括号匹配错误
-    let pos = lineText.indexOf('(')
-    let strArr = [lineText.slice(0, pos), lineText.slice(pos + 1)]
+    let strArr = lineText.split(/\(|\)|\{|\}|\=>?/).filter(Boolean)
     // 如果选择的是参数  不用继续往下找
-    if (strArr.slice(1).some((t) => t.includes(selectText))) {
+    if (strArr.slice(1).some((t) => t === selectText)) {
       endLine = line
-      padIndent += ''.padStart(tabSize ? tabSize : 0, ' ')
+      padIndent += tabSize ? tabSize : 0
       return { endLine, padIndent }
     } else {
       endLine = findEndLine(document, line, { start: '\\{', end: '\\}' })

@@ -22,9 +22,7 @@ export const getTextEditor = () => window.activeTextEditor
  * @param identifier 从哪里取配置
  */
 export const getConfig: {
-  <T extends KeyPath<Config>>(config: T):
-    | ExtractKey<Config, T>
-    | undefined
+  <T extends KeyPath<Config>>(config: T): ExtractKey<Config, T> | undefined
   <T extends KeyPath<Identifier>>(config: T, identifier: 'editor'):
     | ExtractKey<Identifier, T>
     | undefined
