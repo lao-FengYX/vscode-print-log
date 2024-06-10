@@ -181,7 +181,7 @@ export const otherConsoleHandler = (
       insertText = `${
         padIndent < 0
           ? indent.slice(0, padIndent)
-          : indent.padEnd(padIndent, ' ')
+          : indent.padEnd(indent.length + padIndent, ' ')
       }console.${command}(${needOutputText + lineItem.text})`
       semicolon ? (insertText += ';') : null
       insertText += document.eol === EndOfLine.CRLF ? '\r\n' : '\n'
@@ -279,8 +279,9 @@ const loopFind = (
 
   if (fnReg.test(lineText)) {
     let strArr = lineText.split(/\(|\)|\{|\}|\=>?/).filter(Boolean)
+    let replaceText = selectText.replace(/\(|\)|\{|\}|\=>?/g, '')
     // 如果选择的是参数  不用继续往下找
-    if (strArr.slice(1).some((t) => t === selectText)) {
+    if (strArr.slice(1).some((t) => t === replaceText)) {
       endLine = line
       padIndent += tabSize ? tabSize : 0
       return { endLine, padIndent }
