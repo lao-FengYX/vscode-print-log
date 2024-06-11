@@ -278,10 +278,15 @@ const loopFind = (
   let endLine = line
 
   if (fnReg.test(lineText)) {
-    let strArr = lineText.split(/\(|\)|\{|\}|\=>?/).filter(Boolean)
-    let replaceText = selectText.replace(/\(|\)|\{|\}|\=>?/g, '')
+    const splitReg = /\(|\)|\{|\}|\=>?|\s|:|\./g
+    let strArr = lineText
+      .replace(/((var|const|let)\s+)/g, '')
+      .split(splitReg)
+      .filter(Boolean)
+
+    let replaceArr = selectText.split(splitReg).filter(Boolean)
     // 如果选择的是参数  不用继续往下找
-    if (strArr.slice(1).some((t) => t === replaceText)) {
+    if (strArr.slice(1).some((t) => replaceArr.includes(t))) {
       endLine = line
       padIndent += tabSize ? tabSize : 0
       return { endLine, padIndent }
