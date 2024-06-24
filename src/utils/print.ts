@@ -351,7 +351,8 @@ const findCommaLine = (document: TextDocument, start: number) => {
   let isVarFlag = false
   const varReg = /^(let|const|var)\s+/
   const commaReg = /\,$/
-  const fnReg = /function\s+.*\((.*\{)?$|=.*\(/
+  // const fnReg = /function\s+.*\((.*\{)?$|=.*\(/
+  const fnReg = /.*\((.*\{)?$|=.*\(/
 
   while (start >= 0) {
     const text = getNotCommentText(document.lineAt(start).text)
