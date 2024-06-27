@@ -278,7 +278,7 @@ const loopFind = (
   let endLine = line
 
   if (fnReg.test(lineText)) {
-    const splitReg = /\(|\)|\{|\}|\=>?|\s|:|\.|,/g
+    const splitReg = /[^\w]/g
     let strArr = lineText
       .replace(/((var|const|let)\s+)/g, '')
       .split(splitReg)
