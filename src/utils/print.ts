@@ -280,7 +280,7 @@ const loopFind = (
   if (fnReg.test(lineText)) {
     const splitReg = /[^\w]/g
     let strArr = lineText
-      .replace(/((var|const|let)\s+)/g, '')
+      .replace(/((var|const|let|function|export)\s+)/g, '')
       .split(splitReg)
       .filter(Boolean)
 
