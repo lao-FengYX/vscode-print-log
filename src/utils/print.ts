@@ -279,14 +279,15 @@ const loopFind = (
 
   if (fnReg.test(lineText)) {
     const splitReg = /[^\w]/g
-    let strArr = lineText
-      .replace(/((var|const|let|function|export)\s+)/g, '')
-      .split(splitReg)
-      .filter(Boolean)
 
+    let repStr = lineText.replace(/((var|const|let|function|export)\s+)/g, '')
+    let strArr = repStr.split(splitReg).filter(Boolean)
     let replaceArr = selectText.split(splitReg).filter(Boolean)
+
+    const noFnName = /^\(.*\)\s*(=>\s*)?\{$/.test(repStr)
+
     // 如果选择的是参数  不用继续往下找
-    if (strArr.slice(1).some((t) => replaceArr.includes(t))) {
+    if (noFnName || strArr.slice(1).some((t) => replaceArr.includes(t))) {
       endLine = line
       padIndent += tabSize ? tabSize : 0
       return { endLine, padIndent }
