@@ -1,5 +1,11 @@
 import path from 'path'
-import { commands, ExtensionContext, languages, TextEditor } from 'vscode'
+import {
+  commands,
+  ExtensionContext,
+  languages,
+  Selection,
+  TextEditor
+} from 'vscode'
 import { getTextEditor } from './utils'
 import { allowLog, AutoCompletionItemProvider } from './utils/completionItem'
 import { currentRowConsoleHandler, otherConsoleHandler } from './utils/print'
@@ -49,7 +55,7 @@ export function activate(context: ExtensionContext) {
 const entranceProcess = (editor: TextEditor, command: string) => {
   const selections = editor.selections
   const document = editor.document
-  let lineArr: { num: number; text: string }[] = []
+  let lineArr: { num: number; text: string; selection: Selection }[] = []
   let strArr: string[] = []
 
   selections.forEach((selection) => {
@@ -61,7 +67,7 @@ const entranceProcess = (editor: TextEditor, command: string) => {
     if (
       allowLog(path.extname(document.fileName), document, selection.active.line)
     ) {
-      lineArr.push({ num: selection.active.line, text: words })
+      lineArr.push({ num: selection.active.line, text: words, selection })
     }
   })
 

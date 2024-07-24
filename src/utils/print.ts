@@ -63,7 +63,7 @@ type WaitingProcessing = {
  */
 export const currentRowConsoleHandler = (
   editor: TextEditor,
-  lineArr: { num: number; text: string }[],
+  lineArr: { num: number; text: string; selection: Selection }[],
   command: string
 ) => {
   try {
@@ -142,7 +142,7 @@ type WaitingInsertProcessing = {
  */
 export const otherConsoleHandler = (
   editor: TextEditor,
-  lineArr: { num: number; text: string }[],
+  lineArr: { num: number; text: string; selection: Selection }[],
   command: string
 ) => {
   const document = editor.document
@@ -164,8 +164,7 @@ export const otherConsoleHandler = (
       const { endLine, padIndent } = loopFind(
         document,
         currentLineText,
-        lineItem.num,
-        lineItem.text
+        lineItem
       )
 
       let insertLine = endLine + 1 >= lineCount ? lineCount - 1 : endLine + 1
@@ -260,8 +259,11 @@ const textHandler = (document: TextDocument, line: number, text: string) => {
 const loopFind = (
   document: TextDocument,
   lineText: string,
-  line: number,
-  selectText: string,
+  {
+    num: line,
+    text: selectText,
+    selection
+  }: { num: number; text: string; selection: Selection },
   padIndent = 0
 ): { endLine: number; padIndent: number } => {
   // 箭头函数可以省略括号所以先匹配
@@ -278,8 +280,11 @@ const loopFind = (
   let endLine = line
 
   if (fnReg.test(lineText)) {
-    const splitReg = /[^\w]/g
+    const end = selection.end.character
+    const endText = lineText.slice(end)
+    const endTextStartIsEqual = endText.search(/^\s*=[^=>]/) !== -1
 
+    const splitReg = /[^\w]/g
     let repStr = lineText.replace(/((var|const|let|function|export)\s+)/g, '')
     let strArr = repStr.split(splitReg).filter(Boolean)
     let replaceArr = selectText.split(splitReg).filter(Boolean)
@@ -287,7 +292,10 @@ const loopFind = (
     const noFnName = /^\(.*\)\s*(=>\s*)?\{$/.test(repStr)
 
     // 如果选择的是参数  不用继续往下找
-    if (noFnName || strArr.slice(1).some((t) => replaceArr.includes(t))) {
+    if (
+      !endTextStartIsEqual &&
+      (noFnName || strArr.slice(1).some((t) => replaceArr.includes(t)))
+    ) {
       endLine = line
       padIndent += tabSize ? tabSize : 0
       return { endLine, padIndent }
@@ -320,7 +328,12 @@ const loopFind = (
         : undefined
 
     if (nextLineText) {
-      return loopFind(document, nextLineText, line + 1, selectText, padIndent)
+      return loopFind(
+        document,
+        nextLineText,
+        { num: line + 1, text: selectText, selection },
+        padIndent
+      )
     }
   } else if (
     line - 1 >= 0 &&
@@ -337,7 +350,12 @@ const loopFind = (
       ? getNotCommentText(document.lineAt(endLine + 1).text)
       : ''
   if (dotReg.test(nextLineText) || ternaryReg.test(nextLineText)) {
-    return loopFind(document, nextLineText, endLine + 1, selectText, padIndent)
+    return loopFind(
+      document,
+      nextLineText,
+      { num: endLine + 1, text: selectText, selection },
+      padIndent
+    )
   }
 
   return { endLine, padIndent }
