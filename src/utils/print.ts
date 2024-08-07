@@ -281,25 +281,15 @@ const loopFind = (
 
   if (fnReg.test(lineText)) {
     const end = selection.end.character
-    const endText = lineText.slice(end)
-    const endTextStartIsEqual = endText.search(/^\s*=[^=>]/) !== -1
+    const equalIndex = lineText.search(/(?<!=)=[^=>]/)
 
-    const splitReg = /[^\w]/g
-    let repStr = lineText.replace(/((var|const|let|function|export)\s+)/g, '')
-    let strArr = repStr.split(splitReg).filter(Boolean)
-    let replaceArr = selectText.split(splitReg).filter(Boolean)
-
-    const noFnName = /^\(.*\)\s*(=>\s*)?\{$/.test(repStr)
-
-    // 如果选择的是参数  不用继续往下找
-    if (
-      !endTextStartIsEqual &&
-      (noFnName || strArr.slice(1).some((t) => replaceArr.includes(t)))
-    ) {
+    // 如果选择的文本在赋值的等号右侧  视为在下一行进行打印
+    if (end > equalIndex) {
       endLine = line
       padIndent += tabSize ? tabSize : 0
       return { endLine, padIndent }
     } else {
+      // 否则视为找到函数结束行进行打印
       endLine = findEndLine(document, line, { start: '\\{', end: '\\}' })
     }
   } else if (arrReg.test(lineText)) {
