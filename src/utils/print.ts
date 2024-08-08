@@ -280,11 +280,22 @@ const loopFind = (
   let endLine = line
 
   if (fnReg.test(lineText)) {
+    let originalLineText = getNotCommentText(document.lineAt(line).text, true).trimEnd()
+
     const end = selection.end.character
-    const equalIndex = lineText.search(/(?<!=)=[^=>]/)
+    // 赋值的情况
+    const equalIndex = originalLineText.search(/(?<!=)=[^=>]/)
+    // 括号匹配情况
+    const bracketIndex = originalLineText.search(/\(/)
+    // 匿名箭头函数情况
+    const ternaryIndex = originalLineText.search(/(?<=\S\s*)\:/)
 
     // 如果选择的文本在赋值的等号右侧  视为在下一行进行打印
-    if (end > equalIndex) {
+    if (
+      (equalIndex !== -1 && end > equalIndex) ||
+      (bracketIndex !== -1 && end > bracketIndex) ||
+      (ternaryIndex !== -1 && end > ternaryIndex)
+    ) {
       endLine = line
       padIndent += tabSize ? tabSize : 0
       return { endLine, padIndent }

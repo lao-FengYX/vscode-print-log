@@ -37,8 +37,12 @@ export const getConfig: {
 /**
  * 获取没有注释的文本
  * @param text 需要删除注释的文本
+ * @param needOriginal 是否需要返回不处理前后空格的文本
  */
-export const getNotCommentText = (text: string) => {
+export const getNotCommentText = (
+  text: string,
+  needOriginal: boolean = false
+) => {
   const commentReg = /\/\*[\s\S]*?\*\/|\/\/.*|<!--[\s\S]*?-->/g // 匹配注释
   if (commentReg.test(text)) {
     // 截取除了注释外的所有字符
@@ -49,7 +53,7 @@ export const getNotCommentText = (text: string) => {
   if (text.includes('=')) {
     text = text.replace(/\/.*\//, '')
   }
-  return text.trim()
+  return needOriginal ? text : text.trim()
 }
 
 /**
