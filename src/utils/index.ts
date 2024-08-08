@@ -23,9 +23,10 @@ export const getTextEditor = () => window.activeTextEditor
  */
 export const getConfig: {
   <T extends KeyPath<Config>>(config: T): ExtractKey<Config, T> | undefined
-  <T extends KeyPath<Identifier>>(config: T, identifier: 'editor'):
-    | ExtractKey<Identifier, T>
-    | undefined
+  <T extends KeyPath<Identifier>>(
+    config: T,
+    identifier: 'editor'
+  ): ExtractKey<Identifier, T> | undefined
 } = <T extends KeyPath<Config & Identifier>>(
   config: T,
   identifier?: T extends keyof Identifier ? 'editor' : 'print-log'

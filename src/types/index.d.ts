@@ -80,8 +80,8 @@ export type ExtractKey<
       : never
     : never
   : K extends keyof T
-  ? T[K]
-  : never
+    ? T[K]
+    : never
 
 /**
  * 查找括号类型正则

@@ -280,7 +280,10 @@ const loopFind = (
   let endLine = line
 
   if (fnReg.test(lineText)) {
-    let originalLineText = getNotCommentText(document.lineAt(line).text, true).trimEnd()
+    let originalLineText = getNotCommentText(
+      document.lineAt(line).text,
+      true
+    ).trimEnd()
 
     const end = selection.end.character
     // 赋值的情况
